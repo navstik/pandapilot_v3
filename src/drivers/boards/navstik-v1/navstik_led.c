@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2013 Navstik Development Team. All rights reserved.Based on PX4 port.
+ *
  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,35 +32,84 @@
  ****************************************************************************/
 
 /**
- * @file drv_pwm_servo.h
+ * @file navstik_led.c
  *
- * stm32-specific PWM output data.
+ * PX4FMU LED backend.
  */
 
-#pragma once
+#include <nuttx/config.h>
 
-#include <drivers/drv_pwm_output.h>
+#include <stdbool.h>
 
-/* configuration limits */
-#define PWM_SERVO_MAX_TIMERS	4
-#define PWM_SERVO_MAX_CHANNELS	6   // NAVSTIK has 6 PWM outputs
+#include "stm32.h"
+#include "board_config.h"
 
-/* array of timers dedicated to PWM servo use */
-struct pwm_servo_timer {
-	uint32_t	base;
-	uint32_t	clock_register;
-	uint32_t	clock_bit;
-	uint32_t	clock_freq;
-};
+#include <arch/board/board.h>
 
-/* array of channels in logical order */
-struct pwm_servo_channel {
-	uint32_t	gpio;
-	uint8_t		timer_index;
-	uint8_t		timer_channel;
-	servo_position_t default_value;
-};
+/*
+ * Ideally we'd be able to get these from up_internal.h,
+ * but since we want to be able to disable the NuttX use
+ * of leds for system indication at will and there is no
+ * separate switch, we need to build independent of the
+ * CONFIG_ARCH_LEDS configuration switch.
+ */
+__BEGIN_DECLS
+extern void led_init();
+extern void led_on(int led);
+extern void led_off(int led);
+extern void led_toggle(int led);
+__END_DECLS
 
-/* supplied by board-specific code */
-__EXPORT extern const struct pwm_servo_timer pwm_timers[PWM_SERVO_MAX_TIMERS];
-__EXPORT extern const struct pwm_servo_channel pwm_channels[PWM_SERVO_MAX_CHANNELS];
+__EXPORT void led_init()
+{
+	/* Configure LED1-2 GPIOs for output */
+
+	stm32_configgpio(GPIO_LED1);
+	stm32_configgpio(GPIO_LED2);
+}
+
+__EXPORT void led_on(int led)
+{
+	if (led == 0)
+	{
+		/* Pull down to switch on */
+		stm32_gpiowrite(GPIO_LED1, true);
+	}
+	if (led == 1)
+	{
+		/* Pull down to switch on */
+		stm32_gpiowrite(GPIO_LED2, true);
+	}
+}
+
+__EXPORT void led_off(int led)
+{
+	if (led == 0)
+	{
+		/* Pull up to switch off */
+		stm32_gpiowrite(GPIO_LED1, false);
+	}
+	if (led == 1)
+	{
+		/* Pull up to switch off */
+		stm32_gpiowrite(GPIO_LED2, false);
+	}
+}
+
+__EXPORT void led_toggle(int led)
+{
+	if (led == 0)
+	{
+		if (stm32_gpioread(GPIO_LED1))
+			stm32_gpiowrite(GPIO_LED1, false);
+		else
+			stm32_gpiowrite(GPIO_LED1, true);
+	}
+	if (led == 1)
+	{
+		if (stm32_gpioread(GPIO_LED2))
+			stm32_gpiowrite(GPIO_LED2, false);
+		else
+			stm32_gpiowrite(GPIO_LED2, true);
+	}
+}

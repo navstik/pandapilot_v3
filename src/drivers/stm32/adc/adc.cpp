@@ -1,5 +1,5 @@
 /****************************************************************************
- *
+ *   Copyright (C) 2013 Navstik Development Team. All rights reserved.Based on PX4 port.
  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -373,6 +373,10 @@ adc_main(int argc, char *argv[])
 		/* XXX this hardcodes the default channel set for PX4FMUv2 - should be configurable */
 		g_adc = new ADC((1 << 2) | (1 << 3) | (1 << 4) | 
 			(1 << 10) | (1 << 11) | (1 << 12) | (1 << 13) | (1 << 14) | (1 << 15));
+#endif
+#ifdef CONFIG_ARCH_BOARD_NAVSTIK_V1
+		/* XXX this hardcodes the default channel set for NAVSTIK - should be configurable */
+		g_adc = new ADC((1 << 1) | (1 << 11));
 #endif
 
 		if (g_adc == nullptr)

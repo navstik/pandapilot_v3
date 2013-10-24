@@ -1,5 +1,5 @@
 /****************************************************************************
- *
+ *   Copyright (C) 2013 Navstik Development Team. All rights reserved.Based on PX4 port.
  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,7 @@
  * Maximum number of R/C input channels in the system. S.Bus has up to 18 channels.
  */
 #define RC_INPUT_MAX_CHANNELS	18
+#define PWM_INPUT_CHANNELS      6    // NavStik has 6 PWM Inputs
 
 /**
  * Input signal type, value is a control position from zero to 100

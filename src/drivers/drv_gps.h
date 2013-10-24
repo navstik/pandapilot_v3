@@ -1,5 +1,5 @@
 /****************************************************************************
- *
+ *   Copyright (C) 2013 Navstik Development Team. All rights reserved.Based on PX4 port.
  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@
 #include "drv_sensor.h"
 #include "drv_orb_dev.h"
 
-#define GPS_DEFAULT_UART_PORT "/dev/ttyS3"
+#define GPS_DEFAULT_UART_PORT "/dev/ttyS1"
 
 #define GPS_DEVICE_PATH	"/dev/gps"
 

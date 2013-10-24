@@ -1,5 +1,5 @@
 /****************************************************************************
- *
+ *   Copyright (C) 2013 Navstik Development Team. All rights reserved.Based on PX4 port.
  *   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@
  * HMC5883 internal constants and data structures.
  */
 
-#define HMC5883L_ADDRESS		PX4_I2C_OBDEV_HMC5883
+#define HMC5883L_ADDRESS		NAVSTIK_I2C_OBDEV_HMC5883
 
 /* Max measurement rate is 160Hz, however with 160 it will be set to 166 Hz, therefore workaround using 150 */
 #define HMC5883_CONVERSION_INTERVAL	(1000000 / 150)	/* microseconds */
@@ -662,7 +662,7 @@ HMC5883::ioctl(struct file *filp, int cmd, unsigned long arg)
 		return check_calibration();
 
 	case MAGIOCGEXTERNAL:
-		if (_bus == PX4_I2C_BUS_EXPANSION)
+		if (_bus == NAVSTIK_I2C_BUS_SENSORS)
 			return 1;
 		else
 			return 0;
@@ -829,11 +829,10 @@ HMC5883::collect()
 	/*
 	 * RAW outputs
 	 *
-	 * to align the sensor axes with the board, x and y need to be flipped
-	 * and y needs to be negated
+	 * to align the sensor axes with the board, x and y needs to be negated
 	 */
-	new_report.x_raw = report.y;
-	new_report.y_raw = -report.x;
+	new_report.x_raw = -report.x;
+	new_report.y_raw = -report.y;
 	/* z remains z */
 	new_report.z_raw = report.z;
 
@@ -854,12 +853,12 @@ HMC5883::collect()
 	 *		  74 from all measurements centers them around zero.
 	 */
 
-#ifdef PX4_I2C_BUS_ONBOARD
-	if (_bus == PX4_I2C_BUS_ONBOARD) {
-		/* to align the sensor axes with the board, x and y need to be flipped */
-		new_report.x = ((report.y * _range_scale) - _scale.x_offset) * _scale.x_scale;
-		/* flip axes and negate value for y */
-		new_report.y = ((-report.x * _range_scale) - _scale.y_offset) * _scale.y_scale;
+#ifdef NAVSTIK_I2C_BUS_SENSORS
+	if (_bus == NAVSTIK_I2C_BUS_SENSORS) {
+		/* to align the sensor axes with the board, negate value for x */
+		new_report.x = ((-report.x * _range_scale) - _scale.x_offset) * _scale.x_scale;
+		/* negate value for y */
+		new_report.y = ((-report.y * _range_scale) - _scale.y_offset) * _scale.y_scale;
 		/* z remains z */
 		new_report.z = ((report.z * _range_scale) - _scale.z_offset) * _scale.z_scale;
 	} else {
@@ -871,7 +870,7 @@ HMC5883::collect()
 		new_report.y = ((report.x * _range_scale) - _scale.y_offset) * _scale.y_scale;
 		/* z remains z */
 		new_report.z = ((report.z * _range_scale) - _scale.z_offset) * _scale.z_scale;
-#ifdef PX4_I2C_BUS_ONBOARD
+#ifdef NAVSTIK_I2C_BUS_SENSORS
 	}
 #endif
 
@@ -1234,18 +1233,12 @@ start()
 		/* if already started, the still command succeeded */
 		errx(0, "already started");
 
-	/* create the driver, attempt expansion bus first */
-	g_dev = new HMC5883(PX4_I2C_BUS_EXPANSION);
-	if (g_dev != nullptr && OK != g_dev->init()) {
-		delete g_dev;
-		g_dev = nullptr;
-	}
 			
 
-#ifdef PX4_I2C_BUS_ONBOARD
+#ifdef NAVSTIK_I2C_BUS_SENSORS
 	/* if this failed, attempt onboard sensor */
 	if (g_dev == nullptr) {
-		g_dev = new HMC5883(PX4_I2C_BUS_ONBOARD);
+		g_dev = new HMC5883(NAVSTIK_I2C_BUS_SENSORS);
 		if (g_dev != nullptr && OK != g_dev->init()) {
 			goto fail;
 		}
