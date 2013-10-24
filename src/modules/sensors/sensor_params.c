@@ -1,5 +1,5 @@
 /****************************************************************************
- *
+ *   Copyright (C) 2013 Navstik Development Team. All rights reserved.Based on PX4 port.
  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
  *   Author: @author Lorenz Meier <lm@inf.ethz.ch>
  *           @author Thomas Gubler <thomasgubler@student.ethz.ch>
@@ -197,7 +197,7 @@ PARAM_DEFINE_INT32(RC_DSM_BIND, -1); /* -1 = Idle, 0 = Start DSM2 bind, 1 = Star
 
 #ifdef CONFIG_ARCH_BOARD_PX4FMU_V2
 PARAM_DEFINE_FLOAT(BAT_V_SCALING, 0.0082f);
-#else
+#elif CONFIG_ARCH_BOARD_NAVSTIK_V1
 /* default is conversion factor for the PX4IO / PX4IOAR board, the factor for PX4FMU standalone is different */
 /* PX4IOAR: 0.00838095238 */
 /* FMU standalone: 1/(10 / (47+10)) * (3.3 / 4095) = 0.00459340659 */
