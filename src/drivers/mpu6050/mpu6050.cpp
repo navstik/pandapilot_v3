@@ -64,9 +64,10 @@
 #include <nuttx/arch.h>
 #include <nuttx/wqueue.h>
 #include <nuttx/clock.h>
-
+#include <board_config.h>
 #include <arch/board/board.h>
 #include <drivers/drv_hrt.h>
+//#include <drivers/boards/navstik-v1/board_config.h>
 
 #include <drivers/device/i2c.h>
 #include <drivers/device/ringbuffer.h>

@@ -1,0 +1,75 @@
+#!nsh
+#
+# USB MAVLink start
+#
+
+echo "Starting MAVLink on this USB console"
+
+# Stop tone alarm
+tone_alarm stop
+
+#
+# Check for UORB
+#
+if uorb start
+then
+	echo "uORB started"
+fi
+
+# Tell MAVLink that this link is "fast"
+if mavlink stop
+then
+	echo "stopped other MAVLink instance"
+fi
+mavlink start -b 230400 -d /dev/ttyACM0
+
+# Stop commander
+if commander stop
+then
+	echo "Commander stopped"
+fi
+sleep 1
+
+# Start the commander
+if commander start
+then
+	echo "Commander started"
+fi
+
+# Start px4io if present
+if px4io start
+then
+	echo "PX4IO driver started"
+else
+	if fmu mode_serial
+	then
+		echo "FMU driver started"
+	fi
+fi
+
+# Start sensors
+sh /etc/init.d/rc.sensors
+
+# Start one of the estimators
+if attitude_estimator_ekf status
+then
+	echo "multicopter att filter running"
+else
+	if att_pos_estimator_ekf status
+	then
+		echo "fixedwing att filter running"
+	else
+		attitude_estimator_ekf start
+	fi
+fi
+
+# Start GPS
+if gps start
+then
+	echo "GPS started"
+fi
+
+echo "MAVLink started, exiting shell.."
+
+# Exit shell to make it available to MAVLink
+exit 

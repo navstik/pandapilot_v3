@@ -1,4 +1,4 @@
-#
+#   Copyright (C) 2013 Navstik Development Team. Based on PX4 port.
 #   Copyright (C) 2012 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,31 +41,31 @@
 # the number of duplicate slashes we have lying around in paths,
 # and is consistent with joining the results of $(dir) and $(notdir).
 #
-export PX4_INCLUDE_DIR	 = $(abspath $(PX4_BASE)/src/include)/
-export PX4_MODULE_SRC	 = $(abspath $(PX4_BASE)/src)/
-export PX4_LIB_DIR	 = $(abspath $(PX4_BASE)/src/lib)/
-export PX4_MK_DIR	 = $(abspath $(PX4_BASE)/makefiles)/
-export NUTTX_SRC	 = $(abspath $(PX4_BASE)/NuttX/nuttx)/
-export NUTTX_APP_SRC	 = $(abspath $(PX4_BASE)/NuttX/apps)/
-export MAVLINK_SRC	 = $(abspath $(PX4_BASE)/mavlink)/
-export ROMFS_SRC	 = $(abspath $(PX4_BASE)/ROMFS)/
-export IMAGE_DIR	 = $(abspath $(PX4_BASE)/Images)/
-export BUILD_DIR	 = $(abspath $(PX4_BASE)/Build)/
-export ARCHIVE_DIR	 = $(abspath $(PX4_BASE)/Archives)/
+export NAVSTIK_INCLUDE_DIR	 = $(abspath $(NAVSTIK_BASE)/src/include)/
+export NAVSTIK_MODULE_SRC	 = $(abspath $(NAVSTIK_BASE)/src)/
+export NAVSTIK_LIB_DIR	 = $(abspath $(NAVSTIK_BASE)/src/lib)/
+export NAVSTIK_MK_DIR	 = $(abspath $(NAVSTIK_BASE)/makefiles)/
+export NUTTX_SRC	 = $(abspath $(NAVSTIK_BASE)/NuttX/nuttx)/
+export NUTTX_APP_SRC	 = $(abspath $(NAVSTIK_BASE)/NuttX/apps)/
+export MAVLINK_SRC	 = $(abspath $(NAVSTIK_BASE)/mavlink)/
+export ROMFS_SRC	 = $(abspath $(NAVSTIK_BASE)/ROMFS)/
+export IMAGE_DIR	 = $(abspath $(NAVSTIK_BASE)/Images)/
+export BUILD_DIR	 = $(abspath $(NAVSTIK_BASE)/Build)/
+export ARCHIVE_DIR	 = $(abspath $(NAVSTIK_BASE)/Archives)/
 
 #
 # Default include paths
 #
-export INCLUDE_DIRS	:= $(PX4_MODULE_SRC) \
-			   $(PX4_MODULE_SRC)/modules/ \
-			   $(PX4_INCLUDE_DIR) \
-			   $(PX4_LIB_DIR)
+export INCLUDE_DIRS	:= $(NAVSTIK_MODULE_SRC) \
+			   $(NAVSTIK_MODULE_SRC)/modules/ \
+			   $(NAVSTIK_INCLUDE_DIR) \
+			   $(NAVSTIK_LIB_DIR)
 
 #
 # Tools
 #
-export MKFW		 = $(PX4_BASE)/Tools/px_mkfw.py
-export UPLOADER		 = $(PX4_BASE)/Tools/px_uploader.py
+export MKFW		 = $(NAVSTIK_BASE)/Tools/px_mkfw.py
+export UPLOADER		 = $(NAVSTIK_BASE)/Tools/px_uploader.py
 export COPY		 = cp
 export COPYDIR		 = cp -Rf
 export REMOVE		 = rm -f

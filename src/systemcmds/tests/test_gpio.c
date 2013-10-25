@@ -1,115 +1,108 @@
-/****************************************************************************
- * px4/sensors/test_gpio.c
- *
- *  Copyright (C) 2012 PX4 Development Team. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- ****************************************************************************/
+/*
+ * @file input1.c
+ 
+ */
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/arch.h>
+#include <nuttx/irq.h>
 
 #include <sys/types.h>
+#include <stdbool.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
+#include <assert.h>
 #include <debug.h>
+#include <time.h>
+#include <queue.h>
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
 
-#include <nuttx/analog/adc.h>
+#include <arch/board/board.h>
 
-#include "tests.h"
+#include <chip.h>
+#include <up_internal.h>
+#include <up_arch.h>
 
-#include <drivers/drv_gpio.h>
+#include <stm32.h>
+#include <stm32_gpio.h>
+#include <stm32_tim.h>
 
+#define  TELE_TX_OP 	(GPIO_OUTPUT|GPIO_PULLUP|GPIO_PORTC|GPIO_PIN12)
+#define  TELE_RX_OP 	(GPIO_OUTPUT|GPIO_PULLUP|GPIO_PORTD|GPIO_PIN2)
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
+#define  TELE_TX_IP 	(GPIO_INPUT|GPIO_FLOAT|GPIO_PORTC|GPIO_PIN12)
+#define  TELE_RX_IP 	(GPIO_INPUT|GPIO_FLOAT|GPIO_PORTD|GPIO_PIN2)
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#define  SPEK_TX_OP 	(GPIO_OUTPUT|GPIO_PULLUP|GPIO_PORTC|GPIO_PIN6)
+#define  SPEK_RX_OP 	(GPIO_OUTPUT|GPIO_PULLUP|GPIO_PORTC|GPIO_PIN7)
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+#define  SPEK_TX_IP 	(GPIO_INPUT|GPIO_FLOAT|GPIO_PORTC|GPIO_PIN6)
+#define  SPEK_RX_IP 	(GPIO_INPUT|GPIO_FLOAT|GPIO_PORTC|GPIO_PIN7)
 
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: test_gpio
- ****************************************************************************/
+__EXPORT int  test_gpio(int argc, char *argv[]);
 
 int test_gpio(int argc, char *argv[])
 {
-	int		fd;
-	int		ret = 0;
+	int flag = 0 ;
+	
+	stm32_configgpio(SPEK_TX_OP);
+	stm32_configgpio(SPEK_RX_OP);
 
-	fd = open(PX4IO_DEVICE_PATH, 0);
+	stm32_gpiowrite(SPEK_TX_OP,1);	
+	stm32_gpiowrite(SPEK_RX_OP,1);	
 
-	if (fd < 0) {
-		printf("GPIO: open fail\n");
-		return ERROR;
-	}
+	stm32_configgpio(TELE_TX_OP);
+	stm32_configgpio(TELE_RX_OP);
+	
+	if (stm32_gpioread(TELE_TX_OP) == 0)
+		{
+		printf ("\nEither TELE_TX or SPEK_RX is not working") ;
+		flag++ ;
+		}
+	else
+		{
+		stm32_gpiowrite(SPEK_RX_OP,0);
+		if (stm32_gpioread(TELE_TX_OP) == 1)
+			{			
+			printf ("\nEither TELE_TX or SPEK_RX is not working") ;
+			flag++ ;
+			}
+		else
+			printf ("\nTELE_TX and SPEK_RX Tested OK !!") ;
+		}
 
-	/* set all GPIOs to default state */
-	ioctl(fd, GPIO_RESET, ~0);
+
+	if (stm32_gpioread(TELE_RX_OP) == 0)
+		{
+		printf ("\nEither TELE_RX or SPEK_TX is not working") ;
+		flag++ ;
+		}
+	else
+		{
+		stm32_gpiowrite(SPEK_TX_OP,0);
+		if (stm32_gpioread(TELE_RX_OP) == 1)
+			{
+			printf ("\nEither TELE_RX or SPEK_TX is not working") ;
+			flag++ ;
+			}
+		else
+			printf ("\nTELE_RX and SPEK_TX Tested OK !!") ;
+		}
+
+	stm32_configgpio(TELE_TX_IP);
+	stm32_configgpio(TELE_RX_IP);
+
+	stm32_configgpio(SPEK_TX_OP);
+	stm32_configgpio(SPEK_RX_OP);
 
 
-	/* XXX need to add some GPIO waving stuff here */
+printf ("\n\nUART TELE and UART SPEK Testing Complete.\n\n");
 
+	if (flag != 0)
+		return -1 ;	
 
-	/* Go back to default */
-	ioctl(fd, GPIO_RESET, ~0);
-
-	printf("\t GPIO test successful.\n");
-
-	return ret;
+return 0 ;
 }

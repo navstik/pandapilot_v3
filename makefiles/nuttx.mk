@@ -1,4 +1,4 @@
-#
+#   Copyright (C) 2013 Navstik Development Team. Based on PX4 port.
 #   Copyright (C) 2012 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
 #
 NUTTX_ARCHIVE		:= $(wildcard $(ARCHIVE_DIR)$(BOARD).export)
 ifeq ($(NUTTX_ARCHIVE),)
-$(error The NuttX export archive for $(BOARD) is missing from $(ARCHIVE_DIR) - try 'make archives' in $(PX4_BASE))
+$(error The NuttX export archive for $(BOARD) is missing from $(ARCHIVE_DIR) - try 'make archives' in $(NAVSTIK_BASE))
 endif
 
 #

@@ -1,8 +1,8 @@
 #
-# Rules and tools for uploading firmware to various PX4 boards.
+# Rules and tools for uploading firmware to various NAVSTIK boards.
 #
 
-UPLOADER		 = $(PX4_BASE)/Tools/px_uploader.py
+UPLOADER		 = $(NAVSTIK_BASE)/Tools/px_uploader.py
 
 SYSTYPE			:= $(shell uname -s)
 
@@ -24,20 +24,16 @@ endif
 .PHONY:	all upload-$(METHOD)-$(BOARD)
 all:	upload-$(METHOD)-$(BOARD)
 
-upload-serial-px4fmu-v1:	$(BUNDLE) $(UPLOADER)
+upload-serial-navstik-v1:	$(BUNDLE) $(UPLOADER)
 	$(Q) $(PYTHON) -u $(UPLOADER) --port $(SERIAL_PORTS) $(BUNDLE)
 
-upload-serial-px4fmu-v2:	$(BUNDLE) $(UPLOADER)
+upload-serial-navstik-v2:	$(BUNDLE) $(UPLOADER)
 	$(Q) $(PYTHON) -u $(UPLOADER) --port $(SERIAL_PORTS) $(BUNDLE)
 
 #
 # JTAG firmware uploading with OpenOCD
 #
 JTAGCONFIG		?= interface/olimex-jtag-tiny.cfg
-
-upload-jtag-px4fmu: all
-	@$(ECHO) Attempting to flash PX4FMU board via JTAG
-	$(Q) $(OPENOCD) -f $(JTAGCONFIG) -f ../Bootloader/stm32f4x.cfg -c init -c "reset halt" -c "flash write_image erase nuttx/nuttx" -c "flash write_image erase ../Bootloader/px4fmu_bl.elf" -c "reset run" -c shutdown
 
 upload-jtag-px4io: all
 	@$(ECHO) Attempting to flash PX4IO board via JTAG

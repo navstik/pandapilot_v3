@@ -55,6 +55,10 @@
 #define	HW_ARCH "PX4FMU_V1"
 #endif
 
+#ifdef CONFIG_ARCH_BOARD_NAVSTIK_V1
+#define	HW_ARCH "NAVSTIK_V1"
+#endif
+
 #ifdef CONFIG_ARCH_BOARD_PX4FMU_V2
 #define	HW_ARCH "PX4FMU_V2"
 #endif

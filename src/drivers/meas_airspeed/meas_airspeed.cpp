@@ -311,20 +311,10 @@ start(int i2c_bus)
 	if (g_dev == nullptr)
 		goto fail;
 
-	/* try the MS5525DSO next if init fails */
-	if (OK != g_dev->Airspeed::init()) {
-		delete g_dev;
-		g_dev = new MEASAirspeed(i2c_bus, I2C_ADDRESS_MS5525DSO);
-
-		/* check if the MS5525DSO was instantiated */
-		if (g_dev == nullptr)
-			goto fail;
-
-		/* both versions failed if the init for the MS5525DSO fails, give up */
+	/* both versions failed if the init for the MS5525DSO fails, give up */
 		if (OK != g_dev->Airspeed::init())
 			goto fail;
-	}
-
+	
 	/* set the poll rate to default, starts automatic data collection */
 	fd = open(AIRSPEED_DEVICE_PATH, O_RDONLY);
 

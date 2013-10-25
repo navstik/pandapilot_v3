@@ -57,13 +57,6 @@
 #include "systemlib/systemlib.h"
 #include "systemlib/err.h"
 
-#ifndef PX4_I2C_BUS_ONBOARD
-#  error PX4_I2C_BUS_ONBOARD not defined, no device interface
-#endif
-#ifndef PX4_I2C_OBDEV_PX4IO
-#  error PX4_I2C_OBDEV_PX4IO not defined
-#endif
-
 __EXPORT int i2c_main(int argc, char *argv[]);
 
 static int transfer(uint8_t address, uint8_t *send, unsigned send_len, uint8_t *recv, unsigned recv_len);
@@ -73,7 +66,7 @@ static struct i2c_dev_s *i2c;
 int i2c_main(int argc, char *argv[])
 {
 	/* find the right I2C */
-	i2c = up_i2cinitialize(PX4_I2C_BUS_ONBOARD);
+	i2c = up_i2cinitialize(NAVSTIK_I2C_BUS_SENSORS);
 
 	if (i2c == NULL)
 		errx(1, "failed to locate I2C bus");
@@ -81,13 +74,13 @@ int i2c_main(int argc, char *argv[])
 	usleep(100000);
 
 	uint8_t buf[] = { 0, 4};
-	int ret = transfer(PX4_I2C_OBDEV_PX4IO, buf, sizeof(buf), NULL, 0);
+	int ret = transfer(NAVSTIK_I2C_BUS_SENSORS, buf, sizeof(buf), NULL, 0);
 
 	if (ret)
 		errx(1, "send failed - %d", ret);
 
 	uint32_t val;
-	ret = transfer(PX4_I2C_OBDEV_PX4IO, NULL, 0, (uint8_t *)&val, sizeof(val));
+	ret = transfer(NAVSTIK_I2C_BUS_SENSORS, NULL, 0, (uint8_t *)&val, sizeof(val));
 	if (ret)
 		errx(1, "recive failed - %d", ret);
 

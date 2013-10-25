@@ -60,9 +60,10 @@
 #include <arch/board/board.h>
 
 #include <drivers/drv_hrt.h>
-
+#include <board_config.h>
 #include <systemlib/perf_counter.h>
 #include <systemlib/err.h>
+//#include <drivers/boards/navstik-v1/board_config.h>
 
 #include <drivers/drv_baro.h>
 

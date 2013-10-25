@@ -459,12 +459,13 @@ NAVSTIKFMU::task_main()
 	fds[1].fd = _t_actuator_armed;
 	fds[1].events = POLLIN;
 
-#ifdef HRT_PPM_CHANNEL
+
 	// rc input, published to ORB
 	struct rc_input_values rc_in;
 	orb_advert_t to_input_rc = 0;
 
 	memset(&rc_in, 0, sizeof(rc_in));
+#ifdef HRT_PPM_CHANNEL
 	rc_in.input_source = RC_INPUT_SOURCE_PX4FMU_PPM;
 #endif
 
@@ -1054,7 +1055,7 @@ fmu_new_mode(PortMode new_mode)
 #endif
 #if defined(CONFIG_ARCH_BOARD_NAVSTIK_V1)
 		/* select 6-pin PWM mode */
-		servo_mode = NAVSTIK::MODE_6PWM;
+		servo_mode = NAVSTIKFMU::MODE_6PWM;
 #endif
 		break;
 
@@ -1096,14 +1097,14 @@ fmu_new_mode(PortMode new_mode)
 
 	case PORT_PWM_AND_SERIAL:
 		/* select 2-pin PWM mode */
-		servo_mode = NAVSTIK::MODE_2PWM;
+		servo_mode = NAVSTIKFMU::MODE_2PWM;
 		/* set RX/TX multi-GPIOs to serial mode */
 		gpio_bits = GPIO_MULTI_3 | GPIO_MULTI_4;
 		break;
 
 	case PORT_PWM_AND_GPIO:
 		/* select 2-pin PWM mode */
-		servo_mode = NAVSTIK::MODE_2PWM;
+		servo_mode = NAVSTIKFMU::MODE_2PWM;
 		break;
 #endif
 	default:

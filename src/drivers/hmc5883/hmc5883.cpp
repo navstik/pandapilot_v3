@@ -66,6 +66,7 @@
 #include <drivers/drv_mag.h>
 #include <drivers/drv_hrt.h>
 #include <drivers/device/ringbuffer.h>
+//#include <drivers/boards/navstik-v1/board_config.h>
 
 #include <uORB/uORB.h>
 #include <uORB/topics/subsystem_info.h>

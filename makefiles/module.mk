@@ -1,4 +1,4 @@
-#
+#   Copyright (C) 2013 Navstik Development Team. Based on PX4 port.
 #   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #
 
 #
-# Framework makefile for PX4 modules
+# Framework makefile for NAVSTIK modules
 #
 # This makefile is invoked by firmware.mk to build each of the modules
 # that will subsequently be linked into the firmware image.
@@ -172,8 +172,8 @@ else
 DEFAULT_VISIBILITY = default
 endif
 
-CFLAGS		+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(PX4_INCLUDE_DIR)visibility.h
-CXXFLAGS	+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(PX4_INCLUDE_DIR)visibility.h
+CFLAGS		+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(NAVSTIK_INCLUDE_DIR)visibility.h
+CXXFLAGS	+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(NAVSTIK_INCLUDE_DIR)visibility.h
 
 ################################################################################
 # Build rules

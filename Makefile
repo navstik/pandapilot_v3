@@ -1,4 +1,4 @@
-#
+#   Copyright (C) 2013 Navstik Development Team. Based on PX4 port.
 #   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
 #
 
 #
-# Top-level Makefile for building PX4 firmware images.
+# Top-level Makefile for building NAVSTIK firmware images.
 #
 
 #
 # Get path and tool configuration
 #
-export PX4_BASE		 := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
-include $(PX4_BASE)makefiles/setup.mk
+export NAVSTIK_BASE		 := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
+include $(NAVSTIK_BASE)makefiles/setup.mk
 
 #
 # Get a version string provided by git
@@ -53,13 +53,13 @@ export GIT_DESC
 #
 # Canned firmware configurations that we (know how to) build.
 #
-KNOWN_CONFIGS		:= $(subst config_,,$(basename $(notdir $(wildcard $(PX4_MK_DIR)config_*.mk))))
+KNOWN_CONFIGS		:= $(subst config_,,$(basename $(notdir $(wildcard $(NAVSTIK_MK_DIR)config_*.mk))))
 CONFIGS			?= $(KNOWN_CONFIGS)
 
 #
 # Boards that we (know how to) build NuttX export kits for.
 #
-KNOWN_BOARDS		:= $(subst board_,,$(basename $(notdir $(wildcard $(PX4_MK_DIR)board_*.mk))))
+KNOWN_BOARDS		:= $(subst board_,,$(basename $(notdir $(wildcard $(NAVSTIK_MK_DIR)board_*.mk))))
 BOARDS			?= $(KNOWN_BOARDS)
 
 #
@@ -100,37 +100,37 @@ endif
 #
 # Built products
 #
-DESIRED_FIRMWARES 	 = $(foreach config,$(CONFIGS),$(IMAGE_DIR)$(config).px4)
-STAGED_FIRMWARES	 = $(foreach config,$(KNOWN_CONFIGS),$(IMAGE_DIR)$(config).px4)
-FIRMWARES		 = $(foreach config,$(KNOWN_CONFIGS),$(BUILD_DIR)$(config).build/firmware.px4)
+DESIRED_FIRMWARES 	 = $(foreach config,$(CONFIGS),$(IMAGE_DIR)$(config).ns)
+STAGED_FIRMWARES	 = $(foreach config,$(KNOWN_CONFIGS),$(IMAGE_DIR)$(config).ns)
+FIRMWARES		 = $(foreach config,$(KNOWN_CONFIGS),$(BUILD_DIR)$(config).build/firmware.ns)
 
 all:			$(DESIRED_FIRMWARES)
 
 #
 # Copy FIRMWARES into the image directory.
 #
-# XXX copying the .bin files is a hack to work around the PX4IO uploader 
-#     not supporting .px4 files, and it should be deprecated onced that 
+# XXX copying the .bin files is a hack to work around the NAVSTIK uploader 
+#     not supporting .ns files, and it should be deprecated onced that 
 #     is taken care of.
 #
-$(STAGED_FIRMWARES): $(IMAGE_DIR)%.px4: $(BUILD_DIR)%.build/firmware.px4
+$(STAGED_FIRMWARES): $(IMAGE_DIR)%.ns: $(BUILD_DIR)%.build/firmware.ns
 	@$(ECHO) %% Copying $@
 	$(Q) $(COPY) $< $@
-	$(Q) $(COPY) $(patsubst %.px4,%.bin,$<) $(patsubst %.px4,%.bin,$@)
+	$(Q) $(COPY) $(patsubst %.ns,%.bin,$<) $(patsubst %.ns,%.bin,$@)
 
 #
 # Generate FIRMWARES.
 #
 .PHONY: $(FIRMWARES)
-$(BUILD_DIR)%.build/firmware.px4: config   = $(patsubst $(BUILD_DIR)%.build/firmware.px4,%,$@)
-$(BUILD_DIR)%.build/firmware.px4: work_dir = $(BUILD_DIR)$(config).build/
-$(FIRMWARES): $(BUILD_DIR)%.build/firmware.px4:
+$(BUILD_DIR)%.build/firmware.ns: config   = $(patsubst $(BUILD_DIR)%.build/firmware.ns,%,$@)
+$(BUILD_DIR)%.build/firmware.ns: work_dir = $(BUILD_DIR)$(config).build/
+$(FIRMWARES): $(BUILD_DIR)%.build/firmware.ns:
 	@$(ECHO) %%%%
 	@$(ECHO) %%%% Building $(config) in $(work_dir)
 	@$(ECHO) %%%%
 	$(Q) $(MKDIR) -p $(work_dir)
 	$(Q) $(MAKE) -r -C $(work_dir) \
-		-f $(PX4_MK_DIR)firmware.mk \
+		-f $(NAVSTIK_MK_DIR)firmware.mk \
 		CONFIG=$(config) \
 		WORK_DIR=$(work_dir) \
 		$(FIRMWARE_GOAL)
@@ -141,11 +141,11 @@ $(FIRMWARES): $(BUILD_DIR)%.build/firmware.px4:
 # This is a pretty vile hack, since it hard-codes knowledge of the FMU->IO dependency
 # and forces the _default config in all cases. There has to be a better way to do this...
 #
-FMU_VERSION		 = $(patsubst px4fmu-%,%,$(word 1, $(subst _, ,$(1))))
+FMU_VERSION		 = $(patsubst navstik-%,%,$(word 1, $(subst _, ,$(1))))
 define FMU_DEP
-$(BUILD_DIR)$(1).build/firmware.px4: $(IMAGE_DIR)px4io-$(call FMU_VERSION,$(1))_default.px4
+$(BUILD_DIR)$(1).build/firmware.ns: $(IMAGE_DIR)navstik-$(call FMU_VERSION,$(1))_default.ns
 endef
-FMU_CONFIGS		:= $(filter px4fmu%,$(CONFIGS))
+FMU_CONFIGS		:= $(filter navstik%,$(CONFIGS))
 $(foreach config,$(FMU_CONFIGS),$(eval $(call FMU_DEP,$(config))))
 
 #
@@ -175,7 +175,7 @@ $(NUTTX_ARCHIVES): $(ARCHIVE_DIR)%.export: $(NUTTX_SRC)
 	@$(ECHO) %% Configuring NuttX for $(board)
 	$(Q) (cd $(NUTTX_SRC) && $(RMDIR) nuttx-export)
 	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) distclean
-	$(Q) (cd $(NUTTX_SRC)/configs && $(COPYDIR) $(PX4_BASE)nuttx-configs/$(board) .)
+	$(Q) (cd $(NUTTX_SRC)/configs && $(COPYDIR) $(NAVSTIK_BASE)nuttx-configs/$(board) .)
 	$(Q) (cd $(NUTTX_SRC)tools && ./configure.sh $(board)/$(configuration))
 	@$(ECHO) %% Exporting NuttX for $(board)
 	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) CONFIG_ARCH_BOARD=$(board) export
@@ -196,12 +196,12 @@ menuconfig: $(NUTTX_SRC)
 	@$(ECHO) %% Configuring NuttX for $(BOARD)
 	$(Q) (cd $(NUTTX_SRC) && $(RMDIR) nuttx-export)
 	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) distclean
-	$(Q) (cd $(NUTTX_SRC)/configs && $(COPYDIR) $(PX4_BASE)nuttx-configs/$(BOARD) .)
+	$(Q) (cd $(NUTTX_SRC)/configs && $(COPYDIR) $(NAVSTIK_BASE)nuttx-configs/$(BOARD) .)
 	$(Q) (cd $(NUTTX_SRC)tools && ./configure.sh $(BOARD)/nsh)
 	@$(ECHO) %% Running menuconfig for $(BOARD)
 	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) menuconfig
 	@$(ECHO) %% Saving configuration file
-	$(Q)$(COPY) $(NUTTX_SRC).config $(PX4_BASE)nuttx-configs/$(BOARD)/nsh/defconfig
+	$(Q)$(COPY) $(NUTTX_SRC).config $(NAVSTIK_BASE)nuttx-configs/$(BOARD)/nsh/defconfig
 else
 menuconfig:
 	@$(ECHO) ""
@@ -211,14 +211,14 @@ endif
 
 $(NUTTX_SRC):
 	@$(ECHO) ""
-	@$(ECHO) "NuttX sources missing - clone https://github.com/PX4/NuttX.git and try again."
+	@$(ECHO) "NuttX sources missing - clone https://github.com/navstik/NuttX.git and try again."
 	@$(ECHO) ""
 
 #
 # Testing targets
 #
 testbuild:
-	$(Q) (cd $(PX4_BASE) && $(MAKE) distclean && $(MAKE) archives && $(MAKE) -j8)
+	$(Q) (cd $(NAVSTIK_BASE) && $(MAKE) distclean && $(MAKE) archives && $(MAKE) -j8)
 
 #
 # Cleanup targets.  'clean' should remove all built products and force
@@ -228,7 +228,7 @@ testbuild:
 .PHONY:	clean
 clean:
 	$(Q) $(RMDIR) $(BUILD_DIR)*.build
-	$(Q) $(REMOVE) $(IMAGE_DIR)*.px4
+	$(Q) $(REMOVE) $(IMAGE_DIR)*.ns
 
 .PHONY:	distclean
 distclean: clean
@@ -242,7 +242,7 @@ distclean: clean
 .PHONY: help
 help:
 	@$(ECHO) ""
-	@$(ECHO) " PX4 firmware builder"
+	@$(ECHO) " NAVSTIK firmware builder"
 	@$(ECHO) " ===================="
 	@$(ECHO) ""
 	@$(ECHO) "  Available targets:"

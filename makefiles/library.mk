@@ -1,4 +1,4 @@
-#
+#   Copyright (C) 2013 Navstik Development Team. Based on PX4 port.
 #   Copyright (c) 2013 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #
 
 #
-# Framework makefile for PX4 libraries
+# Framework makefile for NAVSTIK libraries
 #
 # This makefile is invoked by firmware.mk to build each of the linraries
 # that will subsequently be linked into the firmware image.
@@ -93,7 +93,7 @@ $(info %% LIBRARY_MK          = $(LIBRARY_MK))
 #
 # Get the board/toolchain config
 #
-include $(PX4_MK_DIR)/board_$(BOARD).mk
+include $(NAVSTIK_MK_DIR)/board_$(BOARD).mk
 
 #
 # Get the library's config

@@ -197,7 +197,7 @@ __BEGIN_DECLS
 
 /* High-resolution timer
  */
-# define HRT_TIMER		4	/* use timer1 for the HRT */
+# define HRT_TIMER		4	/* use timer4 for the HRT */
 # define HRT_TIMER_CHANNEL	1	/* use capture/compare channel */
 #if defined(CONFIG_HRT_TIMER) && defined (CONFIG_HRT_PPM)
 # define HRT_PPM_CHANNEL	3	/* use capture/compare channel 3 */
