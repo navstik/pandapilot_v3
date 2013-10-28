@@ -175,9 +175,9 @@ __BEGIN_DECLS
  * RC2 PA6	Timer 13 Channel 1 (AF9)
  * RC3 PB14 	Timer 12 Channel 1 (AF9)
  * RC4 PB15	Timer 12 Channel 2 (AF9)
- * RC5 PC7	Timer 8 Channel 2 (AF3)
- * RC6 PC6	Timer 8 Channel 1 (AF3)
- */
+ * RC5 PC6	Timer 8 Channel 1 (AF3) 
+ * RC6 PC7	Timer 8 Channel 2 (AF3)
+*/
 
 #define GPIO_TIM14_CH1IN	GPIO_TIM14_CH1IN_1
 #define GPIO_TIM13_CH1IN	GPIO_TIM13_CH1IN_1
@@ -199,11 +199,6 @@ __BEGIN_DECLS
  */
 # define HRT_TIMER		4	/* use timer4 for the HRT */
 # define HRT_TIMER_CHANNEL	1	/* use capture/compare channel */
-#if defined(CONFIG_HRT_TIMER) && defined (CONFIG_HRT_PPM)
-# define HRT_PPM_CHANNEL	3	/* use capture/compare channel 3 */
-# define GPIO_PPM_IN	(GPIO_ALT|GPIO_AF1|GPIO_SPEED_50MHz|GPIO_PULLUP|GPIO_PORTA|GPIO_PIN10)
-#endif
-
 /****************************************************************************************************
  * Public Types
  ****************************************************************************************************/
