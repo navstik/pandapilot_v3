@@ -341,9 +341,11 @@ CONFIG_BOOT_RUNFROMFLASH=y
 #
 # Board Selection
 #
-CONFIG_ARCH_BOARD_NAVSTIK_V1=y         //NavStik
+#CONFIG_ARCH_BOARD_NAVSTIK_V1=y         //NavStik
 # CONFIG_ARCH_BOARD_CUSTOM is not set  //NavStik
-CONFIG_ARCH_BOARD="navstik-v1"         //NavStik
+#CONFIG_ARCH_BOARD="navstik-v1"         //NavStik
+CONFIG_ARCH_BOARD_CUSTOM=y
+CONFIG_ARCH_BOARD=""
 
 #
 # Common Board Options
