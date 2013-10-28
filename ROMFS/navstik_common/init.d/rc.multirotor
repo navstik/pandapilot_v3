@@ -21,7 +21,7 @@ commander start
 #
 # Start GPS interface (depends on orb)
 #
-gps start
+gps start -d /dev/ttyS1 -b 38400
 
 #
 # Start the attitude estimator
@@ -42,3 +42,7 @@ multirotor_att_control start
 # Start position control
 #
 multirotor_pos_control start
+
+usleep 5000
+
+pwm_input
