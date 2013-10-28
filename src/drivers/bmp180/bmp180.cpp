@@ -63,7 +63,6 @@
 #include <board_config.h>
 #include <systemlib/perf_counter.h>
 #include <systemlib/err.h>
-//#include <drivers/boards/navstik-v1/board_config.h>
 
 #include <drivers/drv_baro.h>
 
@@ -276,7 +275,7 @@ extern "C" __EXPORT int bmp180_main(int argc, char *argv[]);
 
 
 BMP180::BMP180(int bus) :
-	I2C("BMP180", BARO_DEVICE_PATH, bus, 0, 400000),
+	I2C("BMP180", BARO_DEVICE_PATH, bus, BMP180_ADDRESS, 400000),
 	_measure_ticks(0),
 	_num_reports(0),
 	_next_report(0),
