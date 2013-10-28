@@ -55,6 +55,3 @@ mixer load /dev/pwm_output /etc/mixers/FMU_quad_x.mix
 #
 sh /etc/init.d/rc.multirotor
 
-
-# Exit, because /dev/ttyS0 is needed for MAVLink
-exit
