@@ -26,12 +26,12 @@ then
 fi
 
 # Start airspeed sensors
-if meas_airspeed start
-then
-	echo "using MEAS airspeed sensor"
-else
-	echo "Not using MEAS airspeed sensor"
-fi
+#if meas_airspeed start
+#then
+	#echo "using MEAS airspeed sensor"
+#else
+	#echo "Not using MEAS airspeed sensor"
+#fi
 
 #
 # Start the sensor collection task.
