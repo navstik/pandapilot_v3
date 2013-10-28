@@ -229,6 +229,7 @@ testbuild:
 clean:
 	$(Q) $(RMDIR) $(BUILD_DIR)*.build
 	$(Q) $(REMOVE) $(IMAGE_DIR)*.ns
+	$(Q) $(REMOVE) $(IMAGE_DIR)*.bin
 
 .PHONY:	distclean
 distclean: clean
