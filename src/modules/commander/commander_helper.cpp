@@ -82,6 +82,8 @@ bool is_rotary_wing(const struct vehicle_status_s *current_status)
 
 static int buzzer;
 static hrt_abstime blink_msg_end;
+static bool print_easy_board_detection= true;
+static bool print_pro_board_detection = true; /**Board Detection Warning**/
 
 int buzzer_init()
 {
@@ -279,11 +281,27 @@ float battery_remaining_estimate_voltage(float voltage)
 	}
 
 	counter++;
-
-	ret = (voltage - ncells * chemistry_voltage_empty) / (ncells * (chemistry_voltage_full - chemistry_voltage_empty));
-
+	if(voltage < 5.5)
+	{		
+		if (print_easy_board_detection)
+		{
+			warnx("\nEasy Board Detected");
+			warnx("\nSetting Battery Health to 0.8");
+			print_easy_board_detection=false;
+		}
+		ret=0.8;
+	}	
+	else
+	{	
+		if(print_pro_board_detection)
+		{
+			warnx("\nPro Board Detected");
+			print_pro_board_detection=false;
+		}
+		ret = (voltage - ncells * chemistry_voltage_empty) / (ncells * 		(chemistry_voltage_full - chemistry_voltage_empty));
+	}
 	/* limit to sane values */
-	ret = (ret < 0.0f) ? 0.0f : ret;
-	ret = (ret > 1.0f) ? 1.0f : ret;
+	ret = (ret < 0) ? 0 : ret;
+	ret = (ret > 1) ? 1 : ret;
 	return ret;
 }
