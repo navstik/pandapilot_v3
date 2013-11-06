@@ -37,3 +37,7 @@ multirotor_att_control start
 # Start position control
 #
 multirotor_pos_control start
+
+usleep 5000
+
+pwm_input

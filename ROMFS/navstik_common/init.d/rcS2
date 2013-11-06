@@ -1,6 +1,6 @@
 #!nsh
 #
-# NAVSTIK startup script.
+# PX4FMU startup script.
 
 #
 # Default to auto-start mode.  An init script on the microSD card
@@ -37,22 +37,46 @@ then
 	sh /fs/microsd/etc/rc.txt
 fi
 
+# if this is an APM build then there will be a rc.APM script
+# from an EXTERNAL_SCRIPTS build option
+if [ -f /etc/init.d/rc.APM ]
+then
+	if sercon
+	then
+		echo "[init] USB interface connected"
+	fi
+
+	echo "Running rc.APM"
+	# if APM startup is successful then nsh will exit
+	sh /etc/init.d/rc.APM
+fi
+
 if [ $MODE == autostart ]
 then
-	#
-	# Start the ORB (first app to start)
-	#
-	uorb start
-	commander start
+
+#
+# Start the ORB (first app to start)
+#
+uorb start
+
+#
+# Load microSD params
+#
+if ramtron start
+then
+	param select /ramtron/params
+	if [ -f /ramtron/params ]
+	then
+		param load /ramtron/params
+	fi
+else
 	param select /fs/microsd/params
 	if [ -f /fs/microsd/params ]
 	then
-		if param load /fs/microsd/params
-		then
-			echo "Parameters loaded"
-		else
-			echo "Parameter file corrupt - ignoring"
-		fi
+		param load /fs/microsd/params
 	fi
-	sh /etc/init.d/666_fmu_q_x550	
 fi
+
+sh /etc/init.d/101_hk_bixler
+
+

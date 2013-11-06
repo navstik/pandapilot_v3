@@ -1,13 +1,12 @@
 #!nsh
 #
-# Standard startup script for PX4FMU onboard sensor drivers.
+# Standard startup script for NAVSTIK onboard sensor drivers.
 #
 
 #
 # Start sensor drivers here.
 #
 
-ms5611 start
 adc start
 
 # mag might be external
@@ -16,32 +15,27 @@ then
 	echo "using HMC5883"
 fi
 
-if mpu6000 start
+if mpu6050 start
 then
 	echo "using MPU6000"
 	set BOARD fmuv1
-else
-	echo "using L3GD20 and LSM303D"
-	l3gd20 start
-	lsm303d start
-	set BOARD fmuv2
 fi
-
+bmp180 start
 # Start airspeed sensors
-if meas_airspeed start
-then
-	echo "using MEAS airspeed sensor"
-else
-	if ets_airspeed start
-	then
-		echo "using ETS airspeed sensor (bus 3)"
-	else
-		if ets_airspeed start -b 1
-		then
-			echo "Using ETS airspeed sensor (bus 1)"
-		fi
-	fi
-fi
+#if meas_airspeed start
+#then
+#	echo "using MEAS airspeed sensor"
+#else
+#	if ets_airspeed start
+#	then
+#		echo "using ETS airspeed sensor (bus 3)"
+#	else
+#		if ets_airspeed start -b 1
+#		then
+#			echo "Using ETS airspeed sensor (bus 1)"
+#		fi
+#	fi
+#fi
 
 #
 # Start the sensor collection task.
