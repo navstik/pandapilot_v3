@@ -81,7 +81,11 @@ MODULES		+= examples/flow_position_estimator
 #
 # Vehicle Control
 #
+<<<<<<< HEAD:makefiles/config_navstik-v1_default.mk
 #MODULES		+= modules/segway
+=======
+#MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
+>>>>>>> d3b267c06e53aaf119b66717ac33e78834ea0d69:makefiles/config_navstik-v1_default.mk
 MODULES		+= modules/fw_pos_control_l1
 MODULES		+= modules/fw_att_control
 MODULES		+= modules/multirotor_att_control
