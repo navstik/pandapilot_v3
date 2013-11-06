@@ -1382,11 +1382,11 @@ control_status_leds(vehicle_status_s *status, const actuator_armed_s *actuator_a
 #ifdef CONFIG_ARCH_BOARD_NAVSTIK_V1
 
 	/* this runs at around 20Hz, full cycle is 16 ticks = 10/16Hz */
-	if (armed->armed) {
+	if (actuator_armed->armed) {
 		/* armed, solid */
 		led_on(LED_BLUE);
 
-	} else if (armed->ready_to_arm) {
+	} else if (actuator_armed->ready_to_arm) {
 		/* ready to arm, blink at 1Hz */
 		if (leds_counter % 20 == 0)
 			led_toggle(LED_BLUE);
