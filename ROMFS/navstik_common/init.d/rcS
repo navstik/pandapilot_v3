@@ -43,7 +43,7 @@ then
 	# Start the ORB (first app to start)
 	#
 	uorb start
-	commander start
+	
 	param select /fs/microsd/params
 	if [ -f /fs/microsd/params ]
 	then
