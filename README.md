@@ -1,6 +1,3 @@
-Autopilot Codebase
-=============
-
 Clone NavStik NuttX Repository 
 ==========
 
