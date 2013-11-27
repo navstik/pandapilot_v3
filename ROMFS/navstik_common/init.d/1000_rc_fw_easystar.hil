@@ -39,7 +39,7 @@ then
 	param set SYS_AUTOCONFIG 0
 	param save
 fi
-
+sercon start
 # Allow USB some time to come up
 sleep 1
 # Tell MAVLink that this link is "fast"
@@ -84,4 +84,6 @@ fw_pos_control_l1 start
 fw_att_control start
 
 echo "[HIL] setup done, running"
+
+pwm_input
 
