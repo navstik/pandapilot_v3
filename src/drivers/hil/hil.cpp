@@ -165,7 +165,7 @@ HIL::HIL() :
 	_t_armed(-1),
 	_t_outputs(0),
 	_num_outputs(0),
-	_primary_pwm_device(false),
+	_primary_pwm_device(true),
 	_task_should_exit(false),
 	_armed(false),
 	_mixers(nullptr)
