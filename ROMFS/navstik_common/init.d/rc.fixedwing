@@ -14,9 +14,14 @@ sh /etc/init.d/rc.sensors
 sh /etc/init.d/rc.logging
 
 #
+# Start the commander.
+#
+commander start
+
+#
 # Start GPS interface (depends on orb)
 #
-gps start
+gps start -d /dev/ttyS1 -b 38400
 
 #
 # Start the attitude and position estimator
@@ -32,3 +37,7 @@ fw_att_control start
 # Start the position controller
 #
 fw_pos_control_l1 start
+
+usleep 5000
+
+pwm_input

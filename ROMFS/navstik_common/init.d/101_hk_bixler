@@ -1,6 +1,6 @@
 #!nsh
 
-echo "[init] PX4FMU v1, v2 with or without IO on HK Bixler"
+echo "[init] NAVSTIK on HK Bixler"
 
 #
 # Load default params for this platform
@@ -42,30 +42,19 @@ fi
 #
 param set MAV_TYPE 1
 
-set EXIT_ON_END no
+#
+# Start MAVLink
+#
+mavlink start -d /dev/ttyS2 -b 57600
+usleep 5000
 
 #
-# Start and configure PX4IO or FMU interface
+# Start PWM output
 #
-if px4io detect
-then
-	# Start MAVLink (depends on orb)
-	mavlink start
-
-	sh /etc/init.d/rc.io
-	# Limit to 100 Hz updates and (implicit) 50 Hz PWM
-	px4io limit 100
-else
-	# Start MAVLink (on UART1 / ttyS0)
-	mavlink start -d /dev/ttyS0
-
-	fmu mode_pwm
-	param set BAT_V_SCALING 0.004593
-	set EXIT_ON_END yes
-fi
+fmu mode_pwm
 
 #
-# Load mixer and start controllers (depends on px4io)
+# Load mixer and start controllers
 #
 if [ -f /fs/microsd/etc/mixers/FMU_AERT.mix ]
 then
@@ -80,8 +69,3 @@ fi
 # Start common fixedwing apps
 #
 sh /etc/init.d/rc.fixedwing
-
-if [ $EXIT_ON_END == yes ]
-then
-	exit
-fi
