@@ -39,15 +39,13 @@ then
 	param set SYS_AUTOCONFIG 0
 	param save
 fi
-sercon start
-# Allow USB some time to come up
-sleep 1
+
 # Tell MAVLink that this link is "fast"
-mavlink start -b 230400 -d /dev/ttyACM0
+mavlink start -b 921600 -d /dev/ttyS2
 
 # Create a fake HIL /dev/pwm_output interface
 hil mode_pwm
-
+commander start
 #
 # Force some key parameters to sane values
 # MAV_TYPE     1 = fixed wing, 2 = quadrotor, 13 = hexarotor
