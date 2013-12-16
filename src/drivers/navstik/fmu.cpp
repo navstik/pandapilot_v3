@@ -69,7 +69,6 @@
 #include <drivers/drv_rc_input.h>
 
 #include <uORB/topics/actuator_controls.h>
-#include <uORB/topics/actuator_controls_effective.h>
 #include <uORB/topics/actuator_outputs.h>
 #include <uORB/topics/actuator_armed.h>
 
@@ -127,7 +126,6 @@ private:
 	int		_t_actuators;
 	int		_t_actuator_armed;
 	orb_advert_t	_t_outputs;
-	orb_advert_t	_t_actuators_effective;
 	unsigned	_num_outputs;
 	bool		_primary_pwm_device;
 
@@ -223,7 +221,6 @@ NAVSTIKFMU::NAVSTIKFMU() :
 	_t_actuators(-1),
 	_t_actuator_armed(-1),
 	_t_outputs(0),
-	_t_actuators_effective(0),
 	_num_outputs(0),
 	_primary_pwm_device(true),
 	_task_should_exit(false),
@@ -470,13 +467,6 @@ NAVSTIKFMU::task_main()
 	_t_outputs = orb_advertise(_primary_pwm_device ? ORB_ID_VEHICLE_CONTROLS : ORB_ID(actuator_outputs_1),
 				   &outputs);
 
-	/* advertise the effective control inputs */
-	actuator_controls_effective_s controls_effective;
-	memset(&controls_effective, 0, sizeof(controls_effective));
-	/* advertise the effective control inputs */
-	_t_actuators_effective = orb_advertise(_primary_pwm_device ? ORB_ID_VEHICLE_ATTITUDE_CONTROLS_EFFECTIVE : ORB_ID(actuator_controls_effective_1),
-				   &controls_effective);
-
 	pollfd fds[2];
 	fds[0].fd = _t_actuators;
 	fds[0].events = POLLIN;
@@ -594,12 +584,6 @@ NAVSTIKFMU::task_main()
 
 					pwm_limit_calc(_armed, num_outputs, _disarmed_pwm, _min_pwm, _max_pwm, outputs.output, pwm_limited, &_pwm_limit);
 
-					/* output actual limited values */
-					for (unsigned i = 0; i < num_outputs; i++) {
-						controls_effective.control_effective[i] = (float)pwm_limited[i];
-					}
-					orb_publish(_primary_pwm_device ? ORB_ID_VEHICLE_ATTITUDE_CONTROLS_EFFECTIVE : ORB_ID(actuator_controls_effective_1), _t_actuators_effective, &controls_effective);
-
 					/* output to the servos */
 					for (unsigned i = 0; i < num_outputs; i++) {
 						up_pwm_servo_set(i, pwm_limited[i]);
@@ -671,7 +655,6 @@ NAVSTIKFMU::task_main()
 	}
 
 	::close(_t_actuators);
-	::close(_t_actuators_effective);
 	::close(_t_actuator_armed);
 
 	/* make sure servos are off */
