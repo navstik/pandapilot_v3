@@ -197,8 +197,10 @@ __BEGIN_DECLS
 
 /* High-resolution timer
  */
-# define HRT_TIMER		4	/* use timer4 for the HRT */
-# define HRT_TIMER_CHANNEL	1	/* use capture/compare channel */
+# define HRT_TIMER		8	/* use timer4 for the HRT */
+# define HRT_TIMER_CHANNEL	2	/* use capture/compare channel */
+# define HRT_PPM_CHANNEL	1	/* use capture/compare channel 3 */
+# define GPIO_PPM_IN		GPIO_TIM8_CH1IN_1
 /****************************************************************************************************
  * Public Types
  ****************************************************************************************************/
