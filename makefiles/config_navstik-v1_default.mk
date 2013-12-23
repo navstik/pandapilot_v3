@@ -38,7 +38,7 @@ MODULES		+= drivers/airspeed
 #MODULES		+= drivers/ets_airspeed
 MODULES		+= drivers/meas_airspeed
 MODULES		+= modules/sensors
-MODULES		+= modules/pwm_input
+#MODULES		+= modules/pwm_input
 MODULES		+= modules/pwm_output
 
 #

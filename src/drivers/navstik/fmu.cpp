@@ -638,20 +638,6 @@ NAVSTIKFMU::task_main()
 		}
 #endif
 
-#ifdef CONFIG_ARCH_BOARD_NAVSTIK_V1
-		rc_in.timestamp = hrt_absolute_time();
-		rc_in.channel_count = PWM_INPUT_CHANNELS ;
-		for (uint8_t i=0; i<rc_in.channel_count; i++) {
-			rc_in.values[i] = rc_buffer[i];
-		}
-		/* lazily advertise on first publication */
-		if (to_input_rc == 0) {
-			to_input_rc = orb_advertise(ORB_ID(input_rc), &rc_in);
-		} else { 
-			orb_publish(ORB_ID(input_rc), to_input_rc, &rc_in);
-		}
-#endif
-
 	}
 
 	::close(_t_actuators);
