@@ -54,7 +54,7 @@ static void sonar_trigger(void);
 uint16_t htime;			/*High Time of Echo Pulse*/
 uint16_t htime_last;
 uint32_t status;
-static float distance = 0;
+__EXPORT volatile float sonar_distance = 0;
 
 __EXPORT int sonar_main(int argc, char *argv[]);
 
@@ -66,13 +66,7 @@ int sonar_main(int argc, char *argv[])
 	attach_isr();
 	set_timer(0);						//timer3 Channel 4 (PB1)
 	enable_irq();
-	while(i<10)
-	{
-		printf("Distance is %.4f meters\n", distance);
-		usleep(2000000);
-		i++;
-	}	
-	return;
+	return 1;
 }
 
 static void sonar_trigger(void)
@@ -144,7 +138,7 @@ static int sonar_isr(void)
 
 		if (htime <= MAX_PULSEWIDTH)
 		{
-			distance = htime * 170 * 1e-6 ;
+			sonar_distance = htime * 170 * 1e-6 ;
 		}
   	}
  return;
