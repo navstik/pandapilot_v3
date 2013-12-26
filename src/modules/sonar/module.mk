@@ -35,5 +35,5 @@
 # 
 #
 
-MODULE_COMMAND	= Ultra_test
-SRCS			= Ultra_test.c
+MODULE_COMMAND	= sonar
+SRCS		= sonar.c

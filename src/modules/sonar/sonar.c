@@ -56,9 +56,9 @@ uint16_t htime_last;
 uint32_t status;
 static float distance = 0;
 
-__EXPORT int Ultra_test_main(int argc, char *argv[]);
+__EXPORT int sonar_main(int argc, char *argv[]);
 
-int Ultra_test_main(int argc, char *argv[])
+int sonar_main(int argc, char *argv[])
 {	
 	sonar_trigger();
 	stm32_configgpio(ECHO);
