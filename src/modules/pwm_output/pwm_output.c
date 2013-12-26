@@ -62,26 +62,27 @@ __EXPORT int  pwm_output_main(int argc, char *argv[]);
 
 int	pwm_output_main(int argc, char *argv[])
 {
-   uint16_t value[6] = {1000,1200,1500,1700,1800,2000};
+ //  uint16_t value[6] = {1000,1200,1500,1700,1800,2000};
+    uint16_t value = 11;
    int t=0,n=0;
-   n = up_pwm_servo_init(0x3F) ; // initialising pwm   
+   n = up_pwm_servo_init(0x20) ; // initialising pwm   
    
    up_pwm_servo_arm(1);//arming servos
  
-  n = up_pwm_servo_set_rate(100); // setting update rate
+  n = up_pwm_servo_set_rate(20); // setting update rate
    
    if (n==-ERANGE)
    printf("Rate not set \n");
    
-  for (unsigned i = 0; i < PWM_SERVO_MAX_CHANNELS; i++) 
-      {
+ // for (unsigned i = 0; i < PWM_SERVO_MAX_CHANNELS; i++) 
+ //     {
             
-            n = up_pwm_servo_set(i,value[i]);
+            n = up_pwm_servo_set(5,value);
             
             if (n==-1)
-            printf("Servo Not Set for RC%d \n",i+1);
+            printf("Servo Not Set for RC\n");
             
-            value[i] = up_pwm_servo_get(i);
-      }
+            value = up_pwm_servo_get(5);
+  //    }
            
 }

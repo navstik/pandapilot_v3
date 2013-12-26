@@ -6,15 +6,6 @@
 #include <stm32_gpio.h>
 #include <stm32_tim.h>
 
-/* PWM Input 
- * RC1 PA7	Timer 14 Channel 1 (AF9)
- * RC2 PA6	Timer 3 Channel 1 (AF2)
- * RC3 PB14 	Timer 12 Channel 1 (AF9)
- * RC4 PB15	Timer 12 Channel 2 (AF9)
- * RC5 PC7	Timer 8 Channel 2 (AF3)
- * RC6 PC6	Timer 8 Channel 1 (AF3)
-*/
-
 #define PWM_INPUT_MAX_TIMERS 4
 
 struct pwm_input_timer 
@@ -26,7 +17,7 @@ struct pwm_input_timer
 	uint32_t	clock_freq;
 };
 
-__EXPORT const struct pwm_input_timer input_timers[PWM_INPUT_MAX_TIMERS] = {
+__EXPORT const struct pwm_input_timer sonar_timers[PWM_INPUT_MAX_TIMERS] = {
 	{	/* Timer 14 */
 		.base		= STM32_TIM14_BASE,
  		.clock_register	= STM32_RCC_APB1ENR,
