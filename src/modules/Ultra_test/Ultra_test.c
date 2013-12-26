@@ -22,20 +22,12 @@
 #include <stm32.h>
 #include <stm32_gpio.h>
 #include <stm32_tim.h>
-#include "input.h" 
+#include "sonar.h" 
 
 static int set_timer(unsigned timer);
 void attach_isr(void);
-static int tim_isr14(void);
+static int sonar_isr(void);
 void enable_irq(void);
-void trigger(void);
-
-uint16_t rc5;
-uint16_t rc5_last;
-uint32_t status;
-uint16_t flag=0;
-uint16_t dist_obj;
-
 
 #define MAX_PULSEWIDTH		15000
 #define ECHO			GPIO_TIM3_CH4IN_1
@@ -61,44 +53,28 @@ uint16_t dist_obj;
 #define rDCR(_tmr)    	REG(_tmr, STM32_GTIM_DCR_OFFSET)
 #define rDMAR(_tmr)   	REG(_tmr, STM32_GTIM_DMAR_OFFSET)
 
+uint16_t htime;			/*High Time of Echo Pulse*/
+uint16_t htime_last;
+uint32_t status;
+static float distance = 0;
 
-struct Ultra_Sound_s 
-{
-	 uint16_t hightime; 					/**< High time of the echo pulse from the distant object **/
-	 float dist_obj;						/**<Distance of the device from the object in cm **/
-	 uint16_t rc5;
-	 uint16_t rc5_last;
-};
-
-struct Ultra_Sound_s U_s_s;
-
-float  Ultra_Sound_measure_once();
 __EXPORT int Ultra_test_main(int argc, char *argv[]);
 
- 
 int Ultra_test_main(int argc, char *argv[])
-{	float dist = 0;
+{	
 	stm32_configgpio(ECHO);
 	int i=0;	
 	attach_isr();
-	set_timer(2);						//timer3 Channel 4 (PB1)
+	set_timer(0);						//timer3 Channel 4 (PB1)
 	enable_irq();
 	while(i<10)
 	{
-		//dist = Ultra_Sound_measure_once();
-		printf("Distance is %.4f meters\n", U_s_s.dist_obj);
+		printf("Distance is %.4f meters\n", distance);
 		usleep(2000000);
 		i++;
 	}	
 	return;
 }
-
-float Ultra_Sound_measure_once()
-{
-	
-	return U_s_s.dist_obj;
-
- }
 
 static int set_timer(unsigned timer)
 {
@@ -132,35 +108,32 @@ static int set_timer(unsigned timer)
 
 void attach_isr(void)
 {
-	irq_attach(sonar_timers[2].vector, tim_isr14);
+	irq_attach(sonar_timers[0].vector, sonar_isr);
 	return;
 } 
 
 void enable_irq(void)
 {
-	up_enable_irq(sonar_timers[2].vector);
+	up_enable_irq(sonar_timers[0].vector);
 	return;		
 }
 
-static int tim_isr14(void)
+static int sonar_isr(void)
 {
-
-	status = rSR(2);
+	status = rSR(0);
 	//ack the interrupts we just read 
-	rSR(2) = ~status;
+	rSR(0) = ~status;
 	
 	if (status & (GTIM_SR_CC4IF | GTIM_SR_CC4OF)) 
 	{
-		uint16_t count1 = rCCR4(2);
-		rc5 = count1 - rc5_last;
-		rc5_last = count1;
+		uint16_t count1 = rCCR4(0);
+		htime = count1 - htime_last;
+		htime_last = count1;
 
-		if (rc5 <= MAX_PULSEWIDTH)
+		if (htime <= MAX_PULSEWIDTH)
 		{
-			U_s_s.dist_obj = rc5 * 170 * 1e-6 ;
+			distance = htime * 170 * 1e-6 ;
 		}
-
   	}
-	
  return;
 }
