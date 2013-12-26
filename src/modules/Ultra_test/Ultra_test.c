@@ -1,10 +1,8 @@
 #include <nuttx/config.h>
 #include <nuttx/arch.h>
 #include <nuttx/irq.h>
-
 #include <sys/types.h>
 #include <stdbool.h>
-
 #include <assert.h>
 #include <debug.h>
 #include <time.h>
@@ -12,13 +10,12 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <arch/board/board.h>
-
 #include <chip.h>
 #include <up_internal.h>
 #include <up_arch.h>
-
+#include <drivers/drv_pwm_output.h>
+#include <drivers/stm32/drv_pwm_servo.h>
 #include <stm32.h>
 #include <stm32_gpio.h>
 #include <stm32_tim.h>
@@ -28,6 +25,7 @@ static int set_timer(unsigned timer);
 void attach_isr(void);
 static int sonar_isr(void);
 void enable_irq(void);
+static void sonar_trigger(void);
 
 #define MAX_PULSEWIDTH		15000
 #define ECHO			GPIO_TIM3_CH4IN_1
@@ -62,6 +60,7 @@ __EXPORT int Ultra_test_main(int argc, char *argv[]);
 
 int Ultra_test_main(int argc, char *argv[])
 {	
+	sonar_trigger();
 	stm32_configgpio(ECHO);
 	int i=0;	
 	attach_isr();
@@ -74,6 +73,19 @@ int Ultra_test_main(int argc, char *argv[])
 		i++;
 	}	
 	return;
+}
+
+static void sonar_trigger(void)
+{	
+	int n=0;
+	n = up_pwm_servo_init(0x20) ;	// initialising Servo 6 (PB0) 
+	up_pwm_servo_arm(1);		//arming servos
+	n = up_pwm_servo_set_rate(20); 	//setting update rate
+	if (n==-ERANGE)
+   	printf("Rate of SONAR trigger pulses not set \n");
+	n = up_pwm_servo_set(5,11); 	//Set High Time of 10usec (11-1=10) for Servo 6 (5+1) (PB0)
+	if (n==-1)
+	printf("High Time of SONAR trigger pulses not set \n");
 }
 
 static int set_timer(unsigned timer)

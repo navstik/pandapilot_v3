@@ -1,16 +1,16 @@
     /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-/*  
- *  Copyright (C) 2013 NavStik Development Team. All rights reserved. Based on PX4 port.
- *  Authors:    Doug Weibel, Jose Julio, Jordi Munoz, Jason Short, Andrew Tridgell, Randy Mackay, Pat Hickey, John Arne Birkeland, Olivier Adler, Amilcar Lucas, Gregory Fletcher
- *  Thanks to:  Chris Anderson, Michael Oborne, Paul Mather, Bill Premerlani, James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, Remzibi, Yury Smirnov, Sandro Benigno, Max Levine, Roberto Navoni, Lorenz Meier, Yury MonZon
- *  Please contribute your ideas!
- * 
- *
- *  This firmware is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
- */
+/*
+* Copyright (C) 2013 NavStik Development Team. All rights reserved. Based on PX4 port.
+* Authors: Doug Weibel, Jose Julio, Jordi Munoz, Jason Short, Andrew Tridgell, Randy Mackay, Pat Hickey, John Arne Birkeland, Olivier Adler, Amilcar Lucas, Gregory Fletcher
+* Thanks to: Chris Anderson, Michael Oborne, Paul Mather, Bill Premerlani, James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, Remzibi, Yury Smirnov, Sandro Benigno, Max Levine, Roberto Navoni, Lorenz Meier, Yury MonZon
+* Please contribute your ideas!
+*
+*
+* This firmware is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // Header includes
@@ -44,45 +44,44 @@
 
 
 /* PWM
- *
- *
- * The Navstik has six PWM outputs
- * The mapping are as follows :
- * PB5	Servo 1 Timer 3 Channel 2 (AF2)
- * PA10	Servo 2 Timer 1 channel 3 (AF1)
- * PC8	Servo 3 Timer 3 Channel 3 (AF2)
- * PB11	Servo 4 Timer 2 Channel 4 (AF1)
- * PB1	Servo 5 Timer 3 Channel 4 (AF2)
- * PB0	Servo 6 Timer 1 Channel 2 (AF1)
- *
- */
+*
+*
+* The Navstik has six PWM outputs
+* The mapping are as follows :
+* PB5        Servo 1 Timer 3 Channel 2 (AF2)
+* PA10        Servo 2 Timer 1 channel 3 (AF1)
+* PC8        Servo 3 Timer 3 Channel 3 (AF2)
+* PB11        Servo 4 Timer 2 Channel 4 (AF1)
+* PB1        Servo 5 Timer 3 Channel 4 (AF2)
+* PB0        Servo 6 Timer 1 Channel 2 (AF1)
+*
+*/
 
 
-__EXPORT int  pwm_output_main(int argc, char *argv[]);
+__EXPORT int pwm_output_main(int argc, char *argv[]);
 
-int	pwm_output_main(int argc, char *argv[])
+int        pwm_output_main(int argc, char *argv[])
 {
- //  uint16_t value[6] = {1000,1200,1500,1700,1800,2000};
-    uint16_t value = 11;
+   uint16_t value[6] = {1000,1200,1500,1700,1800,2000};
    int t=0,n=0;
-   n = up_pwm_servo_init(0x20) ; // initialising pwm   
+   n = up_pwm_servo_init(0x3F) ; // initialising pwm
    
    up_pwm_servo_arm(1);//arming servos
  
-  n = up_pwm_servo_set_rate(20); // setting update rate
+  n = up_pwm_servo_set_rate(100); // setting update rate
    
    if (n==-ERANGE)
    printf("Rate not set \n");
    
- // for (unsigned i = 0; i < PWM_SERVO_MAX_CHANNELS; i++) 
- //     {
+  for (unsigned i = 0; i < PWM_SERVO_MAX_CHANNELS; i++)
+      {
             
-            n = up_pwm_servo_set(5,value);
+            n = up_pwm_servo_set(i,value[i]);
             
             if (n==-1)
-            printf("Servo Not Set for RC\n");
+            printf("Servo Not Set for RC%d \n",i+1);
             
-            value = up_pwm_servo_get(5);
-  //    }
+            value[i] = up_pwm_servo_get(i);
+      }
            
 }
