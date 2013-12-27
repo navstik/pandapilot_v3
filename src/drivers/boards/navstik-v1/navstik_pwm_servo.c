@@ -71,10 +71,10 @@ __EXPORT const struct pwm_servo_timer pwm_timers[PWM_SERVO_MAX_TIMERS] = {
 		.clock_freq = STM32_APB2_TIM1_CLKIN
 	},
 	{	/* Timer 2 */
-		.base = STM32_TIM2_BASE,
-		.clock_register = STM32_RCC_APB1ENR,
-		.clock_bit = RCC_APB1ENR_TIM2EN,
-		.clock_freq = STM32_APB1_TIM2_CLKIN
+		.base = 0,
+		.clock_register = 0,
+		.clock_bit = 0,
+		.clock_freq = 0
 	},
 	{	/* Timer 3 */
 		.base = STM32_TIM3_BASE,
@@ -111,21 +111,21 @@ __EXPORT const struct pwm_servo_channel pwm_channels[PWM_SERVO_MAX_CHANNELS] = {
 		
 	},
 	{
-		.gpio = GPIO_TIM2_CH4OUT,
-		.timer_index = 1,
-		.timer_channel = 4,
-		.default_value = 1000,
-	},
-	{
-		.gpio = GPIO_TIM3_CH4OUT,
-		.timer_index = 2,
-		.timer_channel = 4,
-		.default_value = 1000,
-	},
-	{	
 		.gpio = GPIO_TIM1_CH2N,
 		.timer_index = 0,
 		.timer_channel = 5,
 		.default_value = 1000,
+	},
+	{
+		.gpio = 0,
+		.timer_index = 0,
+		.timer_channel = 0,
+		.default_value = 0,
+	},
+	{	
+		.gpio = 0,
+		.timer_index = 0,
+		.timer_channel = 0,
+		.default_value = 0,
 	}
 };

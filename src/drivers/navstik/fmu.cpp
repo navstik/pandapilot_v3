@@ -1231,7 +1231,7 @@ fmu_new_mode(PortMode new_mode)
 #endif
 #if defined(CONFIG_ARCH_BOARD_NAVSTIK_V1)
 		/* select 6-pin PWM mode */
-		servo_mode = NAVSTIKFMU::MODE_6PWM;
+		servo_mode = NAVSTIKFMU::MODE_4PWM;
 #endif
 		break;
 

@@ -73,7 +73,7 @@ static int set_timer(unsigned timer)
 	rDCR(timer) |= 0;
 	/* configure the timer to free-run at 1MHz */
 	rPSC(timer) |= (sonar_timers[timer].clock_freq / 1000000) - 1;
-	rARR(timer) |= 0xffff;
+	//rARR(timer) |= 0xffff;  /*This value is set by fmu because Timer 3 is used for servo output generation
 	/*Channel 4 is configured as Input Capture Mode*/
 	rCCMR2(timer) |= ((GTIM_CCMR_CCS_CCIN1<<GTIM_CCMR2_CC4S_SHIFT)|(GTIM_CCMR_ICF_FCKINT8<<GTIM_CCMR2_IC4F_SHIFT));
 	rCCMR1(timer) |= 0;
