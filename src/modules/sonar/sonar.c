@@ -22,34 +22,15 @@
 #include "sonar.h" 
 
 static int set_timer(unsigned timer);
+static int set_trigger_timer(unsigned timer);
 void attach_isr(void);
 static int sonar_isr(void);
 void enable_irq(void);
 static void sonar_trigger(void);
 
 #define MAX_PULSEWIDTH		15000
+#define TRIGGER			GPIO_TIM2_CH4OUT_2
 #define ECHO			GPIO_TIM3_CH4IN_1
-
-#define REG(_tmr, _reg)	(*(volatile uint32_t *)(sonar_timers[_tmr].base + _reg))
-
-#define rCR1(_tmr)    	REG(_tmr, STM32_GTIM_CR1_OFFSET)
-#define rCR2(_tmr)    	REG(_tmr, STM32_GTIM_CR2_OFFSET)
-#define rSMCR(_tmr)   	REG(_tmr, STM32_GTIM_SMCR_OFFSET)
-#define rDIER(_tmr)   	REG(_tmr, STM32_GTIM_DIER_OFFSET)
-#define rSR(_tmr)     	REG(_tmr, STM32_GTIM_SR_OFFSET)
-#define rEGR(_tmr)    	REG(_tmr, STM32_GTIM_EGR_OFFSET)
-#define rCCMR1(_tmr)  	REG(_tmr, STM32_GTIM_CCMR1_OFFSET)
-#define rCCMR2(_tmr)  	REG(_tmr, STM32_GTIM_CCMR2_OFFSET)
-#define rCCER(_tmr)   	REG(_tmr, STM32_GTIM_CCER_OFFSET)
-#define rCNT(_tmr)    	REG(_tmr, STM32_GTIM_CNT_OFFSET)
-#define rPSC(_tmr)    	REG(_tmr, STM32_GTIM_PSC_OFFSET)
-#define rARR(_tmr)    	REG(_tmr, STM32_GTIM_ARR_OFFSET)
-#define rCCR1(_tmr)   	REG(_tmr, STM32_GTIM_CCR1_OFFSET)
-#define rCCR2(_tmr)   	REG(_tmr, STM32_GTIM_CCR2_OFFSET)
-#define rCCR3(_tmr)   	REG(_tmr, STM32_GTIM_CCR3_OFFSET)
-#define rCCR4(_tmr)   	REG(_tmr, STM32_GTIM_CCR4_OFFSET)
-#define rDCR(_tmr)    	REG(_tmr, STM32_GTIM_DCR_OFFSET)
-#define rDMAR(_tmr)   	REG(_tmr, STM32_GTIM_DMAR_OFFSET)
 
 uint16_t htime;			/*High Time of Echo Pulse*/
 uint16_t htime_last;
@@ -60,6 +41,7 @@ __EXPORT int sonar_main(int argc, char *argv[]);
 
 int sonar_main(int argc, char *argv[])
 {	
+	stm32_configgpio(TRIGGER);	
 	sonar_trigger();
 	stm32_configgpio(ECHO);
 	int i=0;	
@@ -71,15 +53,7 @@ int sonar_main(int argc, char *argv[])
 
 static void sonar_trigger(void)
 {	
-	int n=0;
-	n = up_pwm_servo_init(0x20) ;	// initialising Servo 6 (PB0) 
-	up_pwm_servo_arm(1);		//arming servos
-	n = up_pwm_servo_set_rate(20); 	//setting update rate
-	if (n==-ERANGE)
-   	printf("Rate of SONAR trigger pulses not set \n");
-	n = up_pwm_servo_set(5,11); 	//Set High Time of 10usec (11-1=10) for Servo 6 (5+1) (PB0)
-	if (n==-1)
-	printf("High Time of SONAR trigger pulses not set \n");
+	set_trigger_timer(1); 					//timer2 Channel 4 (PB11)
 }
 
 static int set_timer(unsigned timer)
@@ -100,7 +74,7 @@ static int set_timer(unsigned timer)
 	/* configure the timer to free-run at 1MHz */
 	rPSC(timer) |= (sonar_timers[timer].clock_freq / 1000000) - 1;
 	rARR(timer) |= 0xffff;
-
+	/*Channel 4 is configured as Input Capture Mode*/
 	rCCMR2(timer) |= ((GTIM_CCMR_CCS_CCIN1<<GTIM_CCMR2_CC4S_SHIFT)|(GTIM_CCMR_ICF_FCKINT8<<GTIM_CCMR2_IC4F_SHIFT));
 	rCCMR1(timer) |= 0;
 	rCCER(timer) |= (GTIM_CCER_CC4E|GTIM_CCER_CC4P|GTIM_CCER_CC4NP);
@@ -142,4 +116,43 @@ static int sonar_isr(void)
 		}
   	}
  return;
+}
+
+static int set_trigger_timer(unsigned timer)
+{
+
+	/* enable the timer clock before we try to talk to it */
+	modifyreg32(sonar_timers[timer].clock_register, 0, sonar_timers[timer].clock_bit);
+
+	/* disable and configure the timer */
+	rCR1(timer) = 0;
+	rCR2(timer) = 0;
+	rSMCR(timer) = 0;
+	rDIER(timer) = 0;
+	rCCER(timer) = 0;
+	rCCMR1(timer) = 0;
+	rCCMR2(timer) = 0;
+	rCCER(timer) = 0;
+	rDCR(timer) = 0;
+
+	if ((sonar_timers[timer].base == STM32_TIM1_BASE) || (sonar_timers[timer].base == STM32_TIM8_BASE)) {
+		/* master output enable = on */
+		rBDTR(timer) = ATIM_BDTR_MOE;
+	}
+
+	/* configure the timer to free-run at 1MHz */
+	rPSC(timer) = (sonar_timers[timer].clock_freq / 1000000) - 1;
+
+	/* configure the timer to update at the desired rate */
+	rARR(timer) = 1000000 / 20;		//Timer 2 update rate set at 20 Hz
+
+	/* generate an update event; reloads the counter and all registers */
+	rEGR(timer) = GTIM_EGR_UG;
+	/*Channel 4 is configured as PWM Mode*/
+	rCCMR2(timer) |= (GTIM_CCMR_MODE_PWM1 << GTIM_CCMR2_OC4M_SHIFT) | GTIM_CCMR2_OC4PE;
+	rCCR4(timer) = 10;			//Configured 10 usec high time pulse to trigger sonar
+	rCCER(timer) |= GTIM_CCER_CC4E;
+
+	/* enable the timer */
+	rCR1(timer) |= GTIM_CR1_CEN | GTIM_CR1_ARPE;
 }
