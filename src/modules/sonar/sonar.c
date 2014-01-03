@@ -16,6 +16,10 @@
 #include <up_arch.h>
 #include <drivers/drv_pwm_output.h>
 #include <drivers/stm32/drv_pwm_servo.h>
+#include <uORB/uORB.h>
+#include <uORB/topics/optical_flow.h>
+#include <drivers/drv_hrt.h>
+#include <systemlib/systemlib.h>
 #include <stm32.h>
 #include <stm32_gpio.h>
 #include <stm32_tim.h>
@@ -38,9 +42,48 @@ uint32_t status;
 __EXPORT volatile float sonar_distance = 0;
 
 __EXPORT int sonar_main(int argc, char *argv[]);
+int sonar_thread_main(int argc, char *argv[]);
+static bool thread_should_exit = false; /**< Deamon exit flag */
+static bool thread_running = false; /**< Deamon status flag */
+static int sonar_task; /**< Handle of deamon task / thread */
+
 
 int sonar_main(int argc, char *argv[])
 {	
+	if (argc < 1)
+		warnx("missing command");
+
+	if (!strcmp(argv[1], "start")) {
+		if (thread_running) {
+			printf("sonar already running\n");
+			/* this is not an error */
+			exit(0);
+		}
+
+		thread_should_exit = false;
+		sonar_task = task_spawn_cmd("sonar",
+					       SCHED_RR, SCHED_PRIORITY_MAX - 5, 2048,
+					       sonar_thread_main,
+					       (argv) ? (const char **) &argv[2] : (const char **) NULL);
+		exit(0);
+	}
+
+	if (!strcmp(argv[1], "stop")) {
+		thread_should_exit = true;
+		exit(0);
+	}
+	
+	exit(1);
+}
+
+int sonar_thread_main(int argc, char *argv[])
+{
+	/* declare and safely initialize all structs */
+	struct optical_flow_s flow;
+	memset(&flow, 0, sizeof(flow));
+	/* advertise */
+	orb_advert_t optical_flow_pub = orb_advertise(ORB_ID(optical_flow), &flow);
+	
 	stm32_configgpio(TRIGGER);	
 	sonar_trigger();
 	stm32_configgpio(ECHO);
@@ -48,7 +91,20 @@ int sonar_main(int argc, char *argv[])
 	attach_isr();
 	set_timer(0);						//timer3 Channel 4 (PB1)
 	enable_irq();
-	return 1;
+	while(!thread_should_exit)
+	{	
+		flow.timestamp = hrt_absolute_time();
+		flow.flow_raw_x=0;
+		flow.flow_raw_y=0;
+		flow.flow_comp_x_m=0;
+		flow.flow_comp_y_m=0;
+		flow.ground_distance_m=sonar_distance;
+		flow.quality=0;
+		flow.sensor_id=0;
+		orb_publish(ORB_ID(optical_flow), optical_flow_pub, &flow);
+	}
+	thread_running = false;
+	return 0;	
 }
 
 static void sonar_trigger(void)
