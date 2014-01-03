@@ -83,11 +83,10 @@ int sonar_thread_main(int argc, char *argv[])
 	memset(&flow, 0, sizeof(flow));
 	/* advertise */
 	orb_advert_t optical_flow_pub = orb_advertise(ORB_ID(optical_flow), &flow);
-	
+	thread_running = true;
 	stm32_configgpio(TRIGGER);	
 	sonar_trigger();
 	stm32_configgpio(ECHO);
-	int i=0;	
 	attach_isr();
 	set_timer(0);						//timer3 Channel 4 (PB1)
 	enable_irq();
@@ -102,6 +101,7 @@ int sonar_thread_main(int argc, char *argv[])
 		flow.quality=0;
 		flow.sensor_id=0;
 		orb_publish(ORB_ID(optical_flow), optical_flow_pub, &flow);
+		usleep(500000);
 	}
 	thread_running = false;
 	return 0;	
