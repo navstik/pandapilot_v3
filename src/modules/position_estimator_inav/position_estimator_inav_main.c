@@ -391,7 +391,7 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 			if (fds[5].revents & POLLIN) {
 				orb_copy(ORB_ID(optical_flow), optical_flow_sub, &flow);
 
-				if (flow.ground_distance_m > 0.31f && flow.ground_distance_m < 4.0f && (flow.ground_distance_m != sonar_prev || t - sonar_time < 150000)) {
+				if (flow.ground_distance_m > 0.05f && flow.ground_distance_m < 4.0f && (flow.ground_distance_m != sonar_prev || t - sonar_time < 150000)) {
 					if (flow.ground_distance_m != sonar_prev) {
 						sonar_time = t;
 						sonar_prev = flow.ground_distance_m;
