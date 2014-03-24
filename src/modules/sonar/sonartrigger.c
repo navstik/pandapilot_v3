@@ -26,11 +26,14 @@
 #include "sonar.h" 
 
 static int set_timer(unsigned timer);
+static int set_trigger_timer(unsigned timer);
 void attach_isr(void);
 static int sonar_isr(void);
 void enable_irq(void);
+static void sonar_trigger(void);
 
 #define MAX_PULSEWIDTH		50000
+#define TRIGGER			(GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTB|GPIO_PIN1)
 #define ECHO			GPIO_TIM2_CH4IN_2
 
 uint16_t htime;			/*High Time of Echo Pulse*/
@@ -40,9 +43,12 @@ __EXPORT volatile float sonar_distance = 0;
 
 __EXPORT int sonar_main(int argc, char *argv[]);
 int sonar_thread_main(int argc, char *argv[]);
-static bool thread_should_exit = false; /**< Deamon exit flag */
-static bool thread_running = false; /**< Deamon status flag */
+int sonar_trigger_thread_main(int argc, char *argv[]);
+volatile bool thread_should_exit = false; /**< Deamon exit flag */
+volatile bool thread_running = false; /**< Deamon status flag */
 static int sonar_task; /**< Handle of deamon task / thread */
+static int sonar_trigger_task; /**< Handle of deamon task / thread */
+
 
 int sonar_main(int argc, char *argv[])
 {	
@@ -80,9 +86,11 @@ int sonar_thread_main(int argc, char *argv[])
 	/* advertise */
 	orb_advert_t optical_flow_pub = orb_advertise(ORB_ID(optical_flow), &flow);
 	thread_running = true;
+	stm32_configgpio(TRIGGER);	
+	//sonar_trigger();
 	stm32_configgpio(ECHO);
 	attach_isr();
-	set_timer(0);						//timer2 Channel 4 (PB11)
+	set_timer(1);						//timer2 Channel 4 (PB11)
 	enable_irq();
 	while(!thread_should_exit)
 	{	
@@ -101,6 +109,26 @@ int sonar_thread_main(int argc, char *argv[])
 	return 0;	
 }
 
+static void sonar_trigger(void)
+{	
+	sonar_trigger_task = task_spawn_cmd("sonar_trigger",
+					       SCHED_RR, SCHED_PRIORITY_MAX - 5, 2048,
+					       sonar_trigger_thread_main,
+					       (const char **) NULL);
+}
+
+int sonar_trigger_thread_main(int argc, char *argv[])
+{
+	while(!thread_should_exit)
+	{	
+		stm32_gpiowrite(TRIGGER, true);
+		usleep(10);
+		stm32_gpiowrite(TRIGGER, false);
+		usleep(100000);
+	}
+	thread_running = false;
+	return 0;	
+}
 static int set_timer(unsigned timer)
 {
 
@@ -133,13 +161,13 @@ static int set_timer(unsigned timer)
 
 void attach_isr(void)
 {
-	irq_attach(sonar_timers[0].vector, sonar_isr);
+	irq_attach(sonar_timers[1].vector, sonar_isr);
 	return;
 } 
 
 void enable_irq(void)
 {
-	up_enable_irq(sonar_timers[0].vector);
+	up_enable_irq(sonar_timers[1].vector);
 	return;		
 }
 
@@ -154,14 +182,11 @@ static int sonar_isr(void)
 		uint16_t count1 = rCCR4(0);
 		htime = count1 - htime_last;
 		htime_last = count1;
-		
-		sonar_distance = htime * 170 * 1e-6 ;
 
-		if (sonar_distance >3.5f)
+		if (htime <= MAX_PULSEWIDTH)
 		{
-			sonar_distance = 0 ;
-		}		
-
+			sonar_distance = htime * 170 * 1e-6 ;
+		}
   	}
  return;
 }

@@ -6,7 +6,7 @@
 #include <stm32_gpio.h>
 #include <stm32_tim.h>
 
-#define SONAR_INPUT_MAX_TIMERS 2
+#define SONAR_INPUT_MAX_TIMERS 1
 #define REG(_tmr, _reg)	(*(volatile uint32_t *)(sonar_timers[_tmr].base + _reg))
 
 #define rCR1(_tmr)    	REG(_tmr, STM32_GTIM_CR1_OFFSET)
@@ -39,17 +39,11 @@ struct sonar_input_timer
 };
 
 __EXPORT const struct sonar_input_timer sonar_timers[SONAR_INPUT_MAX_TIMERS] = {
-	{	/* Timer 3 */
-		.base 		= STM32_TIM3_BASE,
-		.clock_register = STM32_RCC_APB1ENR,
-		.clock_bit 	= RCC_APB1ENR_TIM3EN,
-		.vector		= STM32_IRQ_TIM3,
-		.clock_freq 	= STM32_APB1_TIM3_CLKIN
-	},
 	{	/* Timer 2 */
-		.base = STM32_TIM2_BASE,
+		.base 		= STM32_TIM2_BASE,
 		.clock_register = STM32_RCC_APB1ENR,
-		.clock_bit = RCC_APB1ENR_TIM2EN,
-		.clock_freq = STM32_APB1_TIM2_CLKIN
+		.clock_bit 	= RCC_APB1ENR_TIM2EN,
+		.vector		= STM32_IRQ_TIM2,
+		.clock_freq 	= STM32_APB1_TIM2_CLKIN
 	}
 };
