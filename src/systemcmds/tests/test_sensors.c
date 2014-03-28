@@ -159,7 +159,7 @@ mpu6k(int argc, char *argv[])
 	struct gyro_report gyro_buf;
 	int		ret;
 
-	fd = open("/dev/accel_mpu6k", O_RDONLY);
+	fd = open("/dev/accel", O_RDONLY);
 
 	if (fd < 0) {
 		printf("\tMPU6K: open fail, run <mpu6000 start> first.\n");
@@ -189,7 +189,7 @@ mpu6k(int argc, char *argv[])
 	printf("\tOK: MPU6K ACCEL passed all tests successfully\n");
 
 	close(fd);
-	fd = open("/dev/gyro_mpu6k", O_RDONLY);
+	fd = open("/dev/gyro", O_RDONLY);
 
 	if (fd < 0) {
 		printf("\tMPU6K GYRO: open fail, run <l3gd20 start> or <mpu6000 start> first.\n");
