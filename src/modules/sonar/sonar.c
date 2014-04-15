@@ -95,7 +95,7 @@ int sonar_thread_main(int argc, char *argv[])
 		flow.quality=0;
 		flow.sensor_id=0;
 		orb_publish(ORB_ID(optical_flow), optical_flow_pub, &flow);
-		usleep(500000);
+		usleep(130000);
 	}
 	thread_running = false;
 	return 0;	
