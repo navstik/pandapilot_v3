@@ -62,6 +62,8 @@ struct multirotor_position_control_params {
 	float rc_scale_pitch;
 	float rc_scale_roll;
 	float rc_scale_yaw;
+	float alt_sp_flag;
+	float alt_sp;
 };
 
 struct multirotor_position_control_param_handles {
@@ -86,6 +88,8 @@ struct multirotor_position_control_param_handles {
 	param_t rc_scale_pitch;
 	param_t rc_scale_roll;
 	param_t rc_scale_yaw;
+	param_t alt_sp_flag;
+	param_t alt_sp;
 };
 
 /**

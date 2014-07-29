@@ -229,6 +229,7 @@ static int multirotor_pos_control_thread_main(int argc, char *argv[])
 	const float pos_ctl_dz = 0.05f;
 
 	float ref_alt = 0.0f;
+	float prev_alt_sp = 0.0f;
 	hrt_abstime ref_alt_t = 0;
 	uint64_t local_ref_timestamp = 0;
 
@@ -356,7 +357,12 @@ static int multirotor_pos_control_thread_main(int argc, char *argv[])
 						local_pos_sp.z = local_pos.z;
 						mavlink_log_info(mavlink_fd, "[mpc] reset alt sp: %.2f", (double) - local_pos_sp.z);
 					}
-
+					if(params.alt_sp_flag == 1){
+						local_pos_sp.z = -params.alt_sp;/*
+						if(prev_alt_sp!=params.alt_sp)
+						mavlink_log_info(mavlink_fd, "[mpc] QGC reset alt sp: %.2f", (double) - local_pos_sp.z);
+						prev_alt_sp = params.alt_sp;*/
+					}else if(params.alt_sp_flag == 0){
 					/* move altitude setpoint with throttle stick */
 					float z_sp_ctl = scale_control(manual.throttle - 0.5f, 0.5f, alt_ctl_dz);
 
@@ -370,6 +376,7 @@ static int multirotor_pos_control_thread_main(int argc, char *argv[])
 						} else if (local_pos_sp.z < local_pos.z - z_sp_offs_max) {
 							local_pos_sp.z = local_pos.z - z_sp_offs_max;
 						}
+					}
 					}
 				}
 

@@ -149,6 +149,7 @@ static const struct listener listeners[] = {
 	{l_vehicle_attitude_controls,	&mavlink_subs.actuators_sub,	0},
 	{l_debug_key_value,		&mavlink_subs.debug_key_value,	0},
 	{l_optical_flow,		&mavlink_subs.optical_flow,	0},
+	{l_sensor_sonar,		&mavlink_subs.sensor_sonar,	0},
 	{l_vehicle_rates_setpoint,	&mavlink_subs.rates_setpoint_sub,	0},
 	{l_home,			&mavlink_subs.home_sub,		0},
 	{l_airspeed,			&mavlink_subs.airspeed_sub,		0},
