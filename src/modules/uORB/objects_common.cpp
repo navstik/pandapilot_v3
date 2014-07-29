@@ -144,6 +144,9 @@ ORB_DEFINE(offboard_control_setpoint, struct offboard_control_setpoint_s);
 #include "topics/optical_flow.h"
 ORB_DEFINE(optical_flow, struct optical_flow_s);
 
+#include "topics/sensor_sonar.h"
+ORB_DEFINE(sensor_sonar, struct sensor_sonar_s);
+
 #include "topics/filtered_bottom_flow.h"
 ORB_DEFINE(filtered_bottom_flow, struct filtered_bottom_flow_s);
 

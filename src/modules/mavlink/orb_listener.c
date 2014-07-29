@@ -122,6 +122,7 @@ static void	l_manual_control_setpoint(const struct listener *l);
 static void	l_vehicle_attitude_controls(const struct listener *l);
 static void	l_debug_key_value(const struct listener *l);
 static void	l_optical_flow(const struct listener *l);
+static void	l_sensor_sonar(const struct listener *l);
 static void	l_vehicle_rates_setpoint(const struct listener *l);
 static void	l_home(const struct listener *l);
 static void	l_airspeed(const struct listener *l);
@@ -649,6 +650,17 @@ l_optical_flow(const struct listener *l)
 				      flow.flow_comp_x_m, flow.flow_comp_y_m, flow.quality, flow.ground_distance_m);
 }
 
+l_sensor_sonar(const struct listener *l)
+{
+	struct sensor_sonar_s sonar_att;
+
+	orb_copy(ORB_ID(sensor_sonar), mavlink_subs.sensor_sonar, &sonar_att);
+
+	mavlink_msg_vision_position_estimate_send(MAVLINK_COMM_0, sonar_att.timestamp, sonar_att.front_x_plus_m,
+ 						sonar_att.back_x_minus_m, sonar_att.left_y_minus_m, sonar_att.right_y_plus_m,
+	  					sonar_att.up_z_plus_m, sonar_att.ground_z_minus_m);
+}
+
 void
 l_home(const struct listener *l)
 {
@@ -816,6 +828,10 @@ uorb_receive_start(void)
 	/* --- FLOW SENSOR --- */
 	mavlink_subs.optical_flow = orb_subscribe(ORB_ID(optical_flow));
 	orb_set_interval(mavlink_subs.optical_flow, 200); 	/* 5Hz updates */
+
+	/* --- ULTRASONIC SENSOR --- */
+	mavlink_subs.sensor_sonar = orb_subscribe(ORB_ID(sensor_sonar));
+	orb_set_interval(mavlink_subs.sensor_sonar, 200); 	/* 5Hz updates */
 
 	/* --- AIRSPEED --- */
 	mavlink_subs.airspeed_sub = orb_subscribe(ORB_ID(airspeed));

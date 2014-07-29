@@ -43,8 +43,8 @@ multirotor_att_control start
 #
 multirotor_pos_control start
 
-sonar_trigger start
-usleep 5000
+#sonar_trigger start
+#usleep 5000
 sonar start
 
 pwm_input

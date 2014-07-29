@@ -41,7 +41,7 @@ MODULES		+= modules/sensors
 MODULES		+= modules/pwm_input
 MODULES		+= modules/pwm_output
 MODULES		+= modules/sonar
-MODULES		+= modules/sonar_trigger
+#MODULES		+= modules/sonar_trigger
 MODULES		+= modules/print_rc_buffer
 #
 # System commands

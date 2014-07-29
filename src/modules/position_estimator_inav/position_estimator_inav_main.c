@@ -60,7 +60,8 @@
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_global_position.h>
 #include <uORB/topics/vehicle_gps_position.h>
-#include <uORB/topics/optical_flow.h>
+//#include <uORB/topics/optical_flow.h>
+#include <uORB/topics/sensor_sonar.h>
 #include <mavlink/mavlink_log.h>
 #include <poll.h>
 #include <systemlib/err.h>
@@ -193,8 +194,10 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 	memset(&att, 0, sizeof(att));
 	struct vehicle_local_position_s local_pos;
 	memset(&local_pos, 0, sizeof(local_pos));
-	struct optical_flow_s flow;
-	memset(&flow, 0, sizeof(flow));
+	//struct optical_flow_s flow;
+	//memset(&flow, 0, sizeof(flow));
+	struct sensor_sonar_s sonar_att;
+	memset(&sonar_att, 0, sizeof(sonar_att));
 	struct vehicle_global_position_s global_pos;
 	memset(&global_pos, 0, sizeof(global_pos));
 
@@ -204,7 +207,8 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 	int armed_sub = orb_subscribe(ORB_ID(actuator_armed));
 	int sensor_combined_sub = orb_subscribe(ORB_ID(sensor_combined));
 	int vehicle_attitude_sub = orb_subscribe(ORB_ID(vehicle_attitude));
-	int optical_flow_sub = orb_subscribe(ORB_ID(optical_flow));
+	//int optical_flow_sub = orb_subscribe(ORB_ID(optical_flow));
+	int sensor_sonar_sub = orb_subscribe(ORB_ID(sensor_sonar));
 	int vehicle_gps_position_sub = orb_subscribe(ORB_ID(vehicle_gps_position));
 
 	/* advertise */
@@ -306,7 +310,8 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 		{ .fd = armed_sub, .events = POLLIN },
 		{ .fd = vehicle_attitude_sub, .events = POLLIN },
 		{ .fd = sensor_combined_sub, .events = POLLIN },
-		{ .fd = optical_flow_sub, .events = POLLIN },
+		//{ .fd = optical_flow_sub, .events = POLLIN },
+		{ .fd = sensor_sonar_sub, .events = POLLIN },
 		{ .fd = vehicle_gps_position_sub, .events = POLLIN }
 	};
 
@@ -387,15 +392,15 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 				}
 			}
 
-			/* optical flow */
+			/* altitude from SONAR */
 			if (fds[5].revents & POLLIN) {
-				orb_copy(ORB_ID(optical_flow), optical_flow_sub, &flow);
+				orb_copy(ORB_ID(sensor_sonar), sensor_sonar_sub, &sonar_att);
 
-				if (flow.ground_distance_m > 0.05f && flow.ground_distance_m < 4.0f && (flow.ground_distance_m != sonar_prev || t - sonar_time < 150000)) {
-					if (flow.ground_distance_m != sonar_prev) {
+				if (sonar_att.ground_z_minus_m > 0.05f && sonar_att.ground_z_minus_m < 4.0f && (sonar_att.ground_z_minus_m != sonar_prev || t - sonar_time < 150000)) {
+					if (sonar_att.ground_z_minus_m != sonar_prev) {
 						sonar_time = t;
-						sonar_prev = flow.ground_distance_m;
-						sonar_corr = -flow.ground_distance_m - z_est[0];
+						sonar_prev = sonar_att.ground_z_minus_m;
+						sonar_corr = -sonar_att.ground_z_minus_m - z_est[0];
 						sonar_corr_filtered += (sonar_corr - sonar_corr_filtered) * params.sonar_filt;
 
 						if (fabsf(sonar_corr) > params.sonar_err) {
