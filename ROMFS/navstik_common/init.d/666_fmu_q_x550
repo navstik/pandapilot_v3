@@ -45,6 +45,7 @@ usleep 5000
 #
 fmu mode_pwm
 #pwm rate -c 1234 -r 400
+pwm_output &
 
 #
 # Load mixer
